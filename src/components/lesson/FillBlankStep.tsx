@@ -59,7 +59,8 @@ export function FillBlankStep({ ayah, onContinue }: Props) {
             </span>
           ))}
         </p>
-        <p className="text-center text-sm text-muted-foreground italic mt-4">{ayah.translation}</p>
+        <p className="text-center text-sm text-foreground/70 italic mt-4">{ayah.transliteration}</p>
+        <p className="text-center text-sm text-muted-foreground mt-1">{ayah.translation}</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">

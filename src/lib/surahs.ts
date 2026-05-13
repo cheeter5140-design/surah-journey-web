@@ -1,7 +1,8 @@
 export interface Ayah {
   arabic: string;
+  transliteration: string;
   translation: string;
-  words: { ar: string; fr: string }[];
+  words: { ar: string; translit?: string; fr: string }[];
   audioUrl?: string;
 }
 
@@ -29,29 +30,32 @@ export const SURAHS: Surah[] = [
     ayahs: [
       {
         arabic: "إِنَّا أَعْطَيْنَاكَ ٱلْكَوْثَرَ",
+        transliteration: "Innā a'ṭaynāka l-kawthar",
         translation: "Vraiment, Nous t'avons accordé l'Abondance.",
         words: [
-          { ar: "إِنَّا", fr: "Vraiment" },
-          { ar: "أَعْطَيْنَاكَ", fr: "Nous t'avons accordé" },
-          { ar: "ٱلْكَوْثَرَ", fr: "l'Abondance" },
+          { ar: "إِنَّا", translit: "Innā", fr: "Vraiment" },
+          { ar: "أَعْطَيْنَاكَ", translit: "a'ṭaynāka", fr: "Nous t'avons accordé" },
+          { ar: "ٱلْكَوْثَرَ", translit: "l-kawthar", fr: "l'Abondance" },
         ],
       },
       {
         arabic: "فَصَلِّ لِرَبِّكَ وَٱنْحَرْ",
+        transliteration: "Fa-ṣalli li-rabbika wa-nḥar",
         translation: "Accomplis la Salat pour ton Seigneur et sacrifie.",
         words: [
-          { ar: "فَصَلِّ", fr: "Accomplis la prière" },
-          { ar: "لِرَبِّكَ", fr: "pour ton Seigneur" },
-          { ar: "وَٱنْحَرْ", fr: "et sacrifie" },
+          { ar: "فَصَلِّ", translit: "Fa-ṣalli", fr: "Accomplis la prière" },
+          { ar: "لِرَبِّكَ", translit: "li-rabbika", fr: "pour ton Seigneur" },
+          { ar: "وَٱنْحَرْ", translit: "wa-nḥar", fr: "et sacrifie" },
         ],
       },
       {
         arabic: "إِنَّ شَانِئَكَ هُوَ ٱلْأَبْتَرُ",
+        transliteration: "Inna shāni'aka huwa l-abtar",
         translation: "Celui qui te hait sera certes, sans postérité.",
         words: [
-          { ar: "إِنَّ", fr: "Certes" },
-          { ar: "شَانِئَكَ", fr: "celui qui te hait" },
-          { ar: "ٱلْأَبْتَرُ", fr: "sans postérité" },
+          { ar: "إِنَّ", translit: "Inna", fr: "Certes" },
+          { ar: "شَانِئَكَ", translit: "shāni'aka", fr: "celui qui te hait" },
+          { ar: "ٱلْأَبْتَرُ", translit: "l-abtar", fr: "sans postérité" },
         ],
       },
     ],
@@ -67,37 +71,41 @@ export const SURAHS: Surah[] = [
     ayahs: [
       {
         arabic: "قُلْ هُوَ ٱللَّهُ أَحَدٌ",
+        transliteration: "Qul huwa Llāhu aḥad",
         translation: "Dis : Il est Allah, Unique.",
         words: [
-          { ar: "قُلْ", fr: "Dis" },
-          { ar: "هُوَ", fr: "Il est" },
-          { ar: "ٱللَّهُ", fr: "Allah" },
-          { ar: "أَحَدٌ", fr: "Unique" },
+          { ar: "قُلْ", translit: "Qul", fr: "Dis" },
+          { ar: "هُوَ", translit: "huwa", fr: "Il est" },
+          { ar: "ٱللَّهُ", translit: "Llāhu", fr: "Allah" },
+          { ar: "أَحَدٌ", translit: "aḥad", fr: "Unique" },
         ],
       },
       {
         arabic: "ٱللَّهُ ٱلصَّمَدُ",
+        transliteration: "Allāhu ṣ-ṣamad",
         translation: "Allah, Le Soutien Universel.",
         words: [
-          { ar: "ٱللَّهُ", fr: "Allah" },
-          { ar: "ٱلصَّمَدُ", fr: "Le Soutien Universel" },
+          { ar: "ٱللَّهُ", translit: "Allāhu", fr: "Allah" },
+          { ar: "ٱلصَّمَدُ", translit: "ṣ-ṣamad", fr: "Le Soutien Universel" },
         ],
       },
       {
         arabic: "لَمْ يَلِدْ وَلَمْ يُولَدْ",
+        transliteration: "Lam yalid wa-lam yūlad",
         translation: "Il n'a jamais engendré, n'a pas été engendré non plus.",
         words: [
-          { ar: "لَمْ يَلِدْ", fr: "Il n'a pas engendré" },
-          { ar: "وَلَمْ يُولَدْ", fr: "et n'a pas été engendré" },
+          { ar: "لَمْ يَلِدْ", translit: "Lam yalid", fr: "Il n'a pas engendré" },
+          { ar: "وَلَمْ يُولَدْ", translit: "wa-lam yūlad", fr: "et n'a pas été engendré" },
         ],
       },
       {
         arabic: "وَلَمْ يَكُن لَّهُۥ كُفُوًا أَحَدٌۢ",
+        transliteration: "Wa-lam yakun lahu kufuwan aḥad",
         translation: "Et nul n'est égal à Lui.",
         words: [
-          { ar: "وَلَمْ يَكُن", fr: "Et nul n'est" },
-          { ar: "لَّهُۥ", fr: "à Lui" },
-          { ar: "كُفُوًا أَحَدٌۢ", fr: "égal" },
+          { ar: "وَلَمْ يَكُن", translit: "Wa-lam yakun", fr: "Et nul n'est" },
+          { ar: "لَّهُۥ", translit: "lahu", fr: "à Lui" },
+          { ar: "كُفُوًا أَحَدٌۢ", translit: "kufuwan aḥad", fr: "égal" },
         ],
       },
     ],
@@ -113,30 +121,33 @@ export const SURAHS: Surah[] = [
     ayahs: [
       {
         arabic: "إِذَا جَآءَ نَصْرُ ٱللَّهِ وَٱلْفَتْحُ",
+        transliteration: "Idhā jā'a naṣru Llāhi wa-l-fatḥ",
         translation: "Lorsque vient le secours d'Allah ainsi que la victoire,",
         words: [
-          { ar: "إِذَا جَآءَ", fr: "Lorsque vient" },
-          { ar: "نَصْرُ ٱللَّهِ", fr: "le secours d'Allah" },
-          { ar: "وَٱلْفَتْحُ", fr: "et la victoire" },
+          { ar: "إِذَا جَآءَ", translit: "Idhā jā'a", fr: "Lorsque vient" },
+          { ar: "نَصْرُ ٱللَّهِ", translit: "naṣru Llāhi", fr: "le secours d'Allah" },
+          { ar: "وَٱلْفَتْحُ", translit: "wa-l-fatḥ", fr: "et la victoire" },
         ],
       },
       {
         arabic: "وَرَأَيْتَ ٱلنَّاسَ يَدْخُلُونَ فِى دِينِ ٱللَّهِ أَفْوَاجًا",
+        transliteration: "Wa-ra'ayta n-nāsa yadkhulūna fī dīni Llāhi afwājā",
         translation: "et que tu vois les gens entrer en foule dans la religion d'Allah,",
         words: [
-          { ar: "وَرَأَيْتَ", fr: "et que tu vois" },
-          { ar: "ٱلنَّاسَ", fr: "les gens" },
-          { ar: "يَدْخُلُونَ", fr: "entrer" },
-          { ar: "أَفْوَاجًا", fr: "en foule" },
+          { ar: "وَرَأَيْتَ", translit: "Wa-ra'ayta", fr: "et que tu vois" },
+          { ar: "ٱلنَّاسَ", translit: "n-nāsa", fr: "les gens" },
+          { ar: "يَدْخُلُونَ", translit: "yadkhulūna", fr: "entrer" },
+          { ar: "أَفْوَاجًا", translit: "afwājā", fr: "en foule" },
         ],
       },
       {
         arabic: "فَسَبِّحْ بِحَمْدِ رَبِّكَ وَٱسْتَغْفِرْهُ",
+        transliteration: "Fa-sabbiḥ bi-ḥamdi rabbika wa-staghfirh",
         translation: "alors, célèbre les louanges de ton Seigneur et implore Son pardon.",
         words: [
-          { ar: "فَسَبِّحْ", fr: "alors célèbre" },
-          { ar: "بِحَمْدِ رَبِّكَ", fr: "les louanges de ton Seigneur" },
-          { ar: "وَٱسْتَغْفِرْهُ", fr: "et implore Son pardon" },
+          { ar: "فَسَبِّحْ", translit: "Fa-sabbiḥ", fr: "alors célèbre" },
+          { ar: "بِحَمْدِ رَبِّكَ", translit: "bi-ḥamdi rabbika", fr: "les louanges de ton Seigneur" },
+          { ar: "وَٱسْتَغْفِرْهُ", translit: "wa-staghfirh", fr: "et implore Son pardon" },
         ],
       },
     ],
@@ -152,28 +163,31 @@ export const SURAHS: Surah[] = [
     ayahs: [
       {
         arabic: "وَٱلْعَصْرِ",
+        transliteration: "Wa-l-'aṣr",
         translation: "Par le Temps !",
         words: [
-          { ar: "وَ", fr: "Par" },
-          { ar: "ٱلْعَصْرِ", fr: "le Temps" },
+          { ar: "وَ", translit: "Wa", fr: "Par" },
+          { ar: "ٱلْعَصْرِ", translit: "l-'aṣr", fr: "le Temps" },
         ],
       },
       {
         arabic: "إِنَّ ٱلْإِنسَـٰنَ لَفِى خُسْرٍ",
+        transliteration: "Inna l-insāna la-fī khusr",
         translation: "L'homme est certes, en perdition,",
         words: [
-          { ar: "إِنَّ", fr: "Certes" },
-          { ar: "ٱلْإِنسَـٰنَ", fr: "l'homme" },
-          { ar: "لَفِى خُسْرٍ", fr: "est en perdition" },
+          { ar: "إِنَّ", translit: "Inna", fr: "Certes" },
+          { ar: "ٱلْإِنسَـٰنَ", translit: "l-insāna", fr: "l'homme" },
+          { ar: "لَفِى خُسْرٍ", translit: "la-fī khusr", fr: "est en perdition" },
         ],
       },
       {
         arabic: "إِلَّا ٱلَّذِينَ ءَامَنُوا۟ وَعَمِلُوا۟ ٱلصَّـٰلِحَـٰتِ",
+        transliteration: "Illā lladhīna āmanū wa-'amilū ṣ-ṣāliḥāt",
         translation: "sauf ceux qui croient et accomplissent les bonnes œuvres,",
         words: [
-          { ar: "إِلَّا", fr: "sauf" },
-          { ar: "ٱلَّذِينَ ءَامَنُوا۟", fr: "ceux qui croient" },
-          { ar: "وَعَمِلُوا۟ ٱلصَّـٰلِحَـٰتِ", fr: "et font de bonnes œuvres" },
+          { ar: "إِلَّا", translit: "Illā", fr: "sauf" },
+          { ar: "ٱلَّذِينَ ءَامَنُوا۟", translit: "lladhīna āmanū", fr: "ceux qui croient" },
+          { ar: "وَعَمِلُوا۟ ٱلصَّـٰلِحَـٰتِ", translit: "wa-'amilū ṣ-ṣāliḥāt", fr: "et font de bonnes œuvres" },
         ],
       },
     ],
@@ -189,29 +203,32 @@ export const SURAHS: Surah[] = [
     ayahs: [
       {
         arabic: "قُلْ أَعُوذُ بِرَبِّ ٱلْفَلَقِ",
+        transliteration: "Qul a'ūdhu bi-rabbi l-falaq",
         translation: "Dis : je cherche protection auprès du Seigneur de l'aube naissante,",
         words: [
-          { ar: "قُلْ", fr: "Dis" },
-          { ar: "أَعُوذُ", fr: "je cherche refuge" },
-          { ar: "بِرَبِّ", fr: "auprès du Seigneur" },
-          { ar: "ٱلْفَلَقِ", fr: "de l'aube" },
+          { ar: "قُلْ", translit: "Qul", fr: "Dis" },
+          { ar: "أَعُوذُ", translit: "a'ūdhu", fr: "je cherche refuge" },
+          { ar: "بِرَبِّ", translit: "bi-rabbi", fr: "auprès du Seigneur" },
+          { ar: "ٱلْفَلَقِ", translit: "l-falaq", fr: "de l'aube" },
         ],
       },
       {
         arabic: "مِن شَرِّ مَا خَلَقَ",
+        transliteration: "Min sharri mā khalaq",
         translation: "contre le mal des êtres qu'Il a créés,",
         words: [
-          { ar: "مِن شَرِّ", fr: "contre le mal" },
-          { ar: "مَا خَلَقَ", fr: "de ce qu'Il a créé" },
+          { ar: "مِن شَرِّ", translit: "Min sharri", fr: "contre le mal" },
+          { ar: "مَا خَلَقَ", translit: "mā khalaq", fr: "de ce qu'Il a créé" },
         ],
       },
       {
         arabic: "وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ",
+        transliteration: "Wa-min sharri ghāsiqin idhā waqab",
         translation: "contre le mal de l'obscurité quand elle s'approfondit,",
         words: [
-          { ar: "وَمِن شَرِّ", fr: "et contre le mal" },
-          { ar: "غَاسِقٍ", fr: "de l'obscurité" },
-          { ar: "إِذَا وَقَبَ", fr: "quand elle s'étend" },
+          { ar: "وَمِن شَرِّ", translit: "Wa-min sharri", fr: "et contre le mal" },
+          { ar: "غَاسِقٍ", translit: "ghāsiqin", fr: "de l'obscurité" },
+          { ar: "إِذَا وَقَبَ", translit: "idhā waqab", fr: "quand elle s'étend" },
         ],
       },
     ],
@@ -227,28 +244,31 @@ export const SURAHS: Surah[] = [
     ayahs: [
       {
         arabic: "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ",
+        transliteration: "Bismi Llāhi r-raḥmāni r-raḥīm",
         translation: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux.",
         words: [
-          { ar: "بِسْمِ ٱللَّهِ", fr: "Au nom d'Allah" },
-          { ar: "ٱلرَّحْمَـٰنِ", fr: "le Tout Miséricordieux" },
-          { ar: "ٱلرَّحِيمِ", fr: "le Très Miséricordieux" },
+          { ar: "بِسْمِ ٱللَّهِ", translit: "Bismi Llāhi", fr: "Au nom d'Allah" },
+          { ar: "ٱلرَّحْمَـٰنِ", translit: "r-raḥmāni", fr: "le Tout Miséricordieux" },
+          { ar: "ٱلرَّحِيمِ", translit: "r-raḥīm", fr: "le Très Miséricordieux" },
         ],
       },
       {
         arabic: "ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَـٰلَمِينَ",
+        transliteration: "Al-ḥamdu li-Llāhi rabbi l-'ālamīn",
         translation: "Louange à Allah, Seigneur de l'univers.",
         words: [
-          { ar: "ٱلْحَمْدُ", fr: "Louange" },
-          { ar: "لِلَّهِ", fr: "à Allah" },
-          { ar: "رَبِّ ٱلْعَـٰلَمِينَ", fr: "Seigneur de l'univers" },
+          { ar: "ٱلْحَمْدُ", translit: "Al-ḥamdu", fr: "Louange" },
+          { ar: "لِلَّهِ", translit: "li-Llāhi", fr: "à Allah" },
+          { ar: "رَبِّ ٱلْعَـٰلَمِينَ", translit: "rabbi l-'ālamīn", fr: "Seigneur de l'univers" },
         ],
       },
       {
         arabic: "ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ",
+        transliteration: "Ar-raḥmāni r-raḥīm",
         translation: "Le Tout Miséricordieux, le Très Miséricordieux,",
         words: [
-          { ar: "ٱلرَّحْمَـٰنِ", fr: "Le Tout Miséricordieux" },
-          { ar: "ٱلرَّحِيمِ", fr: "le Très Miséricordieux" },
+          { ar: "ٱلرَّحْمَـٰنِ", translit: "Ar-raḥmāni", fr: "Le Tout Miséricordieux" },
+          { ar: "ٱلرَّحِيمِ", translit: "r-raḥīm", fr: "le Très Miséricordieux" },
         ],
       },
     ],
