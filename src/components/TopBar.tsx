@@ -1,7 +1,8 @@
-import { Flame, Star, BookOpen, LogIn, LogOut, User as UserIcon } from "lucide-react";
+import { Flame, Star, BookOpen, LogOut, User as UserIcon, Trophy } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useProgress } from "@/lib/progress";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/lib/profile";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +15,7 @@ import {
 export function TopBar() {
   const { progress } = useProgress();
   const { user, signOut } = useAuth();
+  const { profile } = useProfile();
   return (
     <header className="sticky top-0 z-40 backdrop-blur-md bg-background/80 border-b border-border">
       <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -26,33 +28,44 @@ export function TopBar() {
         <div className="flex items-center gap-2">
           <Stat icon={<Flame className="w-4 h-4 text-orange-500" fill="currentColor" />} value={progress.streak} label="j" />
           <Stat icon={<Star className="w-4 h-4 text-gold" fill="currentColor" />} value={progress.xp} label="XP" />
-          {user ? (
+          <Link
+            to="/leaderboard"
+            aria-label="Classement"
+            className="w-9 h-9 rounded-full bg-secondary grid place-items-center hover:ring-2 ring-primary/30 transition"
+          >
+            <Trophy className="w-4 h-4 text-gold" fill="currentColor" />
+          </Link>
+          {user && (
             <DropdownMenu>
-              <DropdownMenuTrigger className="w-9 h-9 rounded-full bg-secondary grid place-items-center hover:ring-2 ring-primary/30 transition">
+              <DropdownMenuTrigger className="w-9 h-9 rounded-full bg-secondary grid place-items-center hover:ring-2 ring-primary/30 transition overflow-hidden">
                 {user.user_metadata?.avatar_url ? (
                   <img src={user.user_metadata.avatar_url} alt="" className="w-9 h-9 rounded-full" />
+                ) : profile ? (
+                  <span className="font-bold text-sm">{profile.display_name.charAt(0).toUpperCase()}</span>
                 ) : (
                   <UserIcon className="w-4 h-4" />
                 )}
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuLabel className="text-xs text-muted-foreground truncate max-w-[200px]">
-                  {user.email}
+                <DropdownMenuLabel className="text-xs">
+                  {profile ? (
+                    <>
+                      <div className="font-bold">{profile.display_name}</div>
+                      <div className="text-muted-foreground">@{profile.username}</div>
+                    </>
+                  ) : (
+                    <div className="text-muted-foreground truncate max-w-[200px]">{user.email}</div>
+                  )}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/onboarding"><UserIcon className="w-4 h-4 mr-2" /> Modifier le profil</Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => signOut()}>
                   <LogOut className="w-4 h-4 mr-2" /> Se déconnecter
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          ) : (
-            <Link
-              to="/login"
-              className="flex items-center gap-1.5 bg-primary text-primary-foreground px-3 py-1.5 rounded-full text-sm font-bold shadow-[var(--shadow-soft)]"
-            >
-              <LogIn className="w-4 h-4" />
-              <span className="hidden sm:inline">Se connecter</span>
-            </Link>
           )}
         </div>
       </div>
