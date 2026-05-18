@@ -1,68 +1,90 @@
 import { Link } from "@tanstack/react-router";
 import { Lock, Check, Star } from "lucide-react";
-import { SURAHS } from "@/lib/surahs";
-import { useProgress, isUnlocked } from "@/lib/progress";
+import { CURRICULUM, FLAT_CURRICULUM, isNodeUnlocked, type CurriculumNode } from "@/lib/curriculum";
+import { useProgress } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 
 export function SurahPath() {
   const { progress, ready } = useProgress();
   if (!ready) return null;
 
+  let flatIndex = -1;
   return (
-    <div className="max-w-md mx-auto px-4 py-8 relative">
-      <div className="text-center mb-10">
-        <p className="text-sm font-semibold text-primary uppercase tracking-widest">Section 1</p>
-        <h1 className="font-display text-3xl font-bold mt-1">Juz 'Amma</h1>
-        <p className="text-muted-foreground text-sm mt-2">Apprends les sourates courtes, une à une.</p>
-      </div>
+    <div className="max-w-md mx-auto px-4 py-8">
+      {CURRICULUM.map((section) => (
+        <div key={section.id} className="mb-14">
+          <div className="text-center mb-8">
+            <p className="text-xs font-bold text-primary uppercase tracking-[0.2em]">
+              Section {section.id}
+            </p>
+            <h2 className="font-display text-3xl font-bold mt-1">{section.name}</h2>
+            <p className="font-[Amiri_Quran] text-lg text-muted-foreground mt-1">
+              {section.arabicName}
+            </p>
+            <p className="text-muted-foreground text-sm mt-2 max-w-xs mx-auto">
+              {section.description}
+            </p>
+          </div>
 
-      <div className="relative flex flex-col items-center gap-10">
-        {SURAHS.map((s, i) => {
-          const unlocked = isUnlocked(s.id, progress.completed);
-          const completed = progress.completed.includes(s.id);
-          // Zig-zag offset
-          const offset = [0, 60, 30, -30, -60, -30, 0][i % 7];
-          return (
-            <div key={s.id} style={{ transform: `translateX(${offset}px)` }} className="relative">
-              <SurahNode surah={s} unlocked={unlocked} completed={completed} index={i} />
-            </div>
-          );
-        })}
-        <div className="mt-4 text-center text-sm text-muted-foreground">
-          <p>✨ Plus de sourates bientôt</p>
+          <div className="relative flex flex-col items-center gap-10">
+            {section.nodes.map((node, i) => {
+              flatIndex += 1;
+              const idx = flatIndex;
+              const unlocked = isNodeUnlocked(idx, progress.completed);
+              const completed = node.surahId != null && progress.completed.includes(node.surahId);
+              const offset = [0, 60, 30, -30, -60, -30, 0][i % 7];
+              return (
+                <div
+                  key={`${section.id}-${node.quranNumber}`}
+                  style={{ transform: `translateX(${offset}px)` }}
+                  className="relative"
+                >
+                  <SurahNode
+                    node={node}
+                    unlocked={unlocked}
+                    completed={completed}
+                    isFirst={idx === 0}
+                  />
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      ))}
+      <p className="text-center text-xs text-muted-foreground pt-2">
+        {FLAT_CURRICULUM.filter((n) => n.surahId != null).length} leçons disponibles · plus à venir ✨
+      </p>
     </div>
   );
 }
 
 function SurahNode({
-  surah,
+  node,
   unlocked,
   completed,
-  index,
+  isFirst,
 }: {
-  surah: (typeof SURAHS)[number];
+  node: CurriculumNode;
   unlocked: boolean;
   completed: boolean;
-  index: number;
+  isFirst: boolean;
 }) {
+  const interactive = unlocked && !node.comingSoon && node.surahId != null;
   const inner = (
     <div className="flex flex-col items-center gap-2 group">
       <div
         className={cn(
-          "relative w-24 h-24 rounded-full grid place-items-center text-4xl transition-all duration-200 active:translate-y-1",
-          unlocked
-            ? completed
-              ? "bg-gold text-primary-foreground shadow-[var(--shadow-gold)]"
-              : "bg-[image:var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-node)] group-hover:scale-105"
-            : "bg-muted text-muted-foreground/40 shadow-[var(--shadow-node-locked)] cursor-not-allowed",
-          index === 0 && unlocked && !completed && "animate-float"
+          "relative w-24 h-24 rounded-full grid place-items-center text-4xl transition-all duration-200",
+          interactive && "active:translate-y-1",
+          interactive && !completed && "bg-[image:var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-node)] group-hover:scale-105",
+          interactive && completed && "bg-gold text-primary-foreground shadow-[var(--shadow-gold)]",
+          (!unlocked || node.comingSoon) && "bg-muted text-muted-foreground/40 shadow-[var(--shadow-node-locked)] cursor-not-allowed",
+          isFirst && interactive && !completed && "animate-float"
         )}
       >
-        <span>{surah.icon}</span>
+        <span>{node.icon}</span>
         {!unlocked && (
-          <div className="absolute inset-0 grid place-items-center bg-black/0">
+          <div className="absolute inset-0 grid place-items-center">
             <Lock className="w-7 h-7" />
           </div>
         )}
@@ -71,22 +93,29 @@ function SurahNode({
             <Check className="w-4 h-4 text-white" strokeWidth={3} />
           </div>
         )}
-        {!unlocked && index !== 0 && (
+        {unlocked && node.comingSoon && (
+          <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-muted text-[10px] font-bold text-muted-foreground whitespace-nowrap border border-border">
+            BIENTÔT
+          </div>
+        )}
+        {!unlocked && (
           <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-muted grid place-items-center border-4 border-background">
             <Star className="w-3 h-3 text-muted-foreground" />
           </div>
         )}
       </div>
-      <div className="text-center">
-        <div className="font-display font-bold">{surah.name}</div>
-        <div className="text-xs text-muted-foreground">{surah.meaning} · {surah.verses} versets</div>
+      <div className="text-center pt-1">
+        <div className="font-display font-bold">{node.name}</div>
+        <div className="text-xs text-muted-foreground">
+          n°{node.quranNumber} · {node.meaning}
+        </div>
       </div>
     </div>
   );
 
-  if (!unlocked) return inner;
+  if (!interactive) return inner;
   return (
-    <Link to="/lesson/$surahId" params={{ surahId: String(surah.id) }}>
+    <Link to="/lesson/$surahId" params={{ surahId: String(node.surahId) }}>
       {inner}
     </Link>
   );
