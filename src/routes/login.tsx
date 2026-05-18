@@ -63,12 +63,9 @@ function LoginPage() {
           )}
           Continuer avec Google
         </Button>
-        <button
-          onClick={() => navigate({ to: "/" })}
-          className="text-sm text-muted-foreground hover:text-foreground underline underline-offset-4"
-        >
-          Continuer sans compte
-        </button>
+        <p className="text-xs text-muted-foreground">
+          La connexion est nécessaire pour sauvegarder ta progression et utiliser le classement entre amis.
+        </p>
       </div>
     </div>
   );
