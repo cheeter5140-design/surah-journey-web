@@ -70,27 +70,48 @@ export type Database = {
       }
       user_progress: {
         Row: {
+          ad_chests_date: string | null
+          ad_chests_today: number
+          coins: number
           completed: number[]
+          daily_state: Json
+          equipped: Json
+          inventory: Json
           last_active: string | null
           streak: number
           updated_at: string
           user_id: string
+          weekly_state: Json
           xp: number
         }
         Insert: {
+          ad_chests_date?: string | null
+          ad_chests_today?: number
+          coins?: number
           completed?: number[]
+          daily_state?: Json
+          equipped?: Json
+          inventory?: Json
           last_active?: string | null
           streak?: number
           updated_at?: string
           user_id: string
+          weekly_state?: Json
           xp?: number
         }
         Update: {
+          ad_chests_date?: string | null
+          ad_chests_today?: number
+          coins?: number
           completed?: number[]
+          daily_state?: Json
+          equipped?: Json
+          inventory?: Json
           last_active?: string | null
           streak?: number
           updated_at?: string
           user_id?: string
+          weekly_state?: Json
           xp?: number
         }
         Relationships: []

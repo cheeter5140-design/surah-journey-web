@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { X, Trophy, Star, Flame } from "lucide-react";
 import { SURAHS } from "@/lib/surahs";
 import { useProgress } from "@/lib/progress";
+import { useGame } from "@/lib/game";
 import { TopBar } from "@/components/TopBar";
 import { ListenStep } from "@/components/lesson/ListenStep";
 import { MatchStep } from "@/components/lesson/MatchStep";
@@ -37,6 +38,7 @@ function LessonPage() {
   const navigate = useNavigate();
   const surah = SURAHS.find((s) => s.id === Number(surahId));
   const { completeSurah, progress } = useProgress();
+  const { trackLesson, addCoins } = useGame();
 
   const steps = useMemo(() => (surah ? buildSteps(surah.ayahs.length) : []), [surah]);
   const [stepIdx, setStepIdx] = useState(0);
@@ -58,7 +60,10 @@ function LessonPage() {
     if (correct) setCorrectCount((c) => c + 1);
     if (stepIdx + 1 >= steps.length) {
       const xpGain = 10 + correctCount * 2;
+      const coinsGain = 15 + correctCount * 3;
       completeSurah(surah.id, xpGain);
+      trackLesson(xpGain);
+      addCoins(coinsGain);
       setDone(true);
     } else {
       setStepIdx((i) => i + 1);
