@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { X, Trophy, Star, Flame } from "lucide-react";
 import { SURAHS } from "@/lib/surahs";
 import { useProgress } from "@/lib/progress";
+import { useGame } from "@/lib/game";
 import { TopBar } from "@/components/TopBar";
 import { ListenStep } from "@/components/lesson/ListenStep";
 import { MatchStep } from "@/components/lesson/MatchStep";
