@@ -63,7 +63,7 @@ function LessonPage() {
       const coinsGain = 15 + correctCount * 3;
       completeSurah(surah.id, xpGain);
       trackLesson(xpGain);
-      applyReward({ coins: coinsGain, item: null }, "ad"); // reuse coin grant path without claiming chest
+      addCoins(coinsGain);
       setDone(true);
     } else {
       setStepIdx((i) => i + 1);
