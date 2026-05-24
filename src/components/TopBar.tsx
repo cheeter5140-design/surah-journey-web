@@ -17,18 +17,34 @@ export function TopBar() {
   const { progress } = useProgress();
   const { user, signOut } = useAuth();
   const { profile } = useProfile();
+  const { state } = useGame();
   return (
     <header className="sticky top-0 z-40 backdrop-blur-md bg-background/80 border-b border-border">
-      <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
+      <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
+        <Link to="/" className="flex items-center gap-2 shrink-0">
           <div className="w-9 h-9 rounded-2xl bg-[image:var(--gradient-primary)] grid place-items-center text-primary-foreground shadow-[var(--shadow-soft)]">
             <BookOpen className="w-5 h-5" />
           </div>
-          <span className="font-display text-lg font-bold tracking-tight">Nour</span>
+          <span className="font-display text-lg font-bold tracking-tight hidden sm:inline">Nour</span>
         </Link>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-end">
           <Stat icon={<Flame className="w-4 h-4 text-orange-500" fill="currentColor" />} value={progress.streak} label="j" />
           <Stat icon={<Star className="w-4 h-4 text-gold" fill="currentColor" />} value={progress.xp} label="XP" />
+          <Stat icon={<Coins className="w-4 h-4 text-gold" fill="currentColor" />} value={state.coins} label="" />
+          <Link
+            to="/chests"
+            aria-label="Coffres"
+            className="w-9 h-9 rounded-full bg-secondary grid place-items-center hover:ring-2 ring-primary/30 transition"
+          >
+            <Gift className="w-4 h-4 text-primary" />
+          </Link>
+          <Link
+            to="/wardrobe"
+            aria-label="Vestiaire"
+            className="w-9 h-9 rounded-full bg-secondary grid place-items-center hover:ring-2 ring-primary/30 transition"
+          >
+            <Shirt className="w-4 h-4 text-primary" />
+          </Link>
           <Link
             to="/leaderboard"
             aria-label="Classement"
