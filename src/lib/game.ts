@@ -281,6 +281,7 @@ export function useGame() {
     equip,
     buyItem,
     trackLesson,
+    addCoins,
     applyReward,
     canOpenAdChest,
     adChestsRemaining,
