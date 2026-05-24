@@ -262,6 +262,8 @@ export function useGame() {
     [update]
   );
 
+  const addCoins = useCallback((amount: number) => update((s) => ({ ...s, coins: s.coins + amount })), [update]);
+
   const canOpenAdChest = state.adChestsToday < MAX_AD_CHESTS_PER_DAY;
   const adChestsRemaining = MAX_AD_CHESTS_PER_DAY - state.adChestsToday;
 
