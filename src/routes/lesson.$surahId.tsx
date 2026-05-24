@@ -38,7 +38,7 @@ function LessonPage() {
   const navigate = useNavigate();
   const surah = SURAHS.find((s) => s.id === Number(surahId));
   const { completeSurah, progress } = useProgress();
-  const { trackLesson, applyReward } = useGame();
+  const { trackLesson, addCoins } = useGame();
 
   const steps = useMemo(() => (surah ? buildSteps(surah.ayahs.length) : []), [surah]);
   const [stepIdx, setStepIdx] = useState(0);
