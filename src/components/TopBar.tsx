@@ -1,8 +1,9 @@
-import { Flame, Star, BookOpen, LogOut, User as UserIcon, Trophy } from "lucide-react";
+import { Flame, Star, BookOpen, LogOut, User as UserIcon, Trophy, Coins, Gift, Shirt } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useProgress } from "@/lib/progress";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/lib/profile";
+import { useGame } from "@/lib/game";
 import {
   DropdownMenu,
   DropdownMenuContent,
