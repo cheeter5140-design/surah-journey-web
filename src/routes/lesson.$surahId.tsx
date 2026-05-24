@@ -38,6 +38,7 @@ function LessonPage() {
   const navigate = useNavigate();
   const surah = SURAHS.find((s) => s.id === Number(surahId));
   const { completeSurah, progress } = useProgress();
+  const { trackLesson, applyReward } = useGame();
 
   const steps = useMemo(() => (surah ? buildSteps(surah.ayahs.length) : []), [surah]);
   const [stepIdx, setStepIdx] = useState(0);
@@ -59,7 +60,10 @@ function LessonPage() {
     if (correct) setCorrectCount((c) => c + 1);
     if (stepIdx + 1 >= steps.length) {
       const xpGain = 10 + correctCount * 2;
+      const coinsGain = 15 + correctCount * 3;
       completeSurah(surah.id, xpGain);
+      trackLesson(xpGain);
+      applyReward({ coins: coinsGain, item: null }, "ad"); // reuse coin grant path without claiming chest
       setDone(true);
     } else {
       setStepIdx((i) => i + 1);
