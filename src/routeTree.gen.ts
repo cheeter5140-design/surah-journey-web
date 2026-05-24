@@ -9,12 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WardrobeRouteImport } from './routes/wardrobe'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LessonSurahIdRouteImport } from './routes/lesson.$surahId'
 
+const WardrobeRoute = WardrobeRouteImport.update({
+  id: '/wardrobe',
+  path: '/wardrobe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -46,6 +52,7 @@ export interface FileRoutesByFullPath {
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
+  '/wardrobe': typeof WardrobeRoute
   '/lesson/$surahId': typeof LessonSurahIdRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +60,7 @@ export interface FileRoutesByTo {
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
+  '/wardrobe': typeof WardrobeRoute
   '/lesson/$surahId': typeof LessonSurahIdRoute
 }
 export interface FileRoutesById {
@@ -61,6 +69,7 @@ export interface FileRoutesById {
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
+  '/wardrobe': typeof WardrobeRoute
   '/lesson/$surahId': typeof LessonSurahIdRoute
 }
 export interface FileRouteTypes {
@@ -70,15 +79,23 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/login'
     | '/onboarding'
+    | '/wardrobe'
     | '/lesson/$surahId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/leaderboard' | '/login' | '/onboarding' | '/lesson/$surahId'
+  to:
+    | '/'
+    | '/leaderboard'
+    | '/login'
+    | '/onboarding'
+    | '/wardrobe'
+    | '/lesson/$surahId'
   id:
     | '__root__'
     | '/'
     | '/leaderboard'
     | '/login'
     | '/onboarding'
+    | '/wardrobe'
     | '/lesson/$surahId'
   fileRoutesById: FileRoutesById
 }
@@ -87,11 +104,19 @@ export interface RootRouteChildren {
   LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
   OnboardingRoute: typeof OnboardingRoute
+  WardrobeRoute: typeof WardrobeRoute
   LessonSurahIdRoute: typeof LessonSurahIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/wardrobe': {
+      id: '/wardrobe'
+      path: '/wardrobe'
+      fullPath: '/wardrobe'
+      preLoaderRoute: typeof WardrobeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/onboarding': {
       id: '/onboarding'
       path: '/onboarding'
@@ -135,8 +160,19 @@ const rootRouteChildren: RootRouteChildren = {
   LeaderboardRoute: LeaderboardRoute,
   LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRoute,
+  WardrobeRoute: WardrobeRoute,
   LessonSurahIdRoute: LessonSurahIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
