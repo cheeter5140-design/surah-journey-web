@@ -1,4 +1,4 @@
-import { Flame, Star, BookOpen, LogOut, User as UserIcon, Trophy, Coins, Gift, Shirt } from "lucide-react";
+import { Flame, Star, BookOpen, LogOut, User as UserIcon, Trophy, Coins, Gift, Shirt, Crown } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useProgress } from "@/lib/progress";
 import { useAuth } from "@/hooks/useAuth";
@@ -46,6 +46,13 @@ export function TopBar() {
             <Shirt className="w-4 h-4 text-primary" />
           </Link>
           <Link
+            to="/premium"
+            aria-label="Premium"
+            className="w-9 h-9 rounded-full bg-gradient-to-br from-gold/20 to-primary/20 grid place-items-center hover:ring-2 ring-gold/40 transition"
+          >
+            <Crown className="w-4 h-4 text-gold" fill="currentColor" />
+          </Link>
+          <Link
             to="/leaderboard"
             aria-label="Classement"
             className="w-9 h-9 rounded-full bg-secondary grid place-items-center hover:ring-2 ring-primary/30 transition"
@@ -77,6 +84,12 @@ export function TopBar() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link to="/onboarding"><UserIcon className="w-4 h-4 mr-2" /> Modifier le profil</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/planner"><Crown className="w-4 h-4 mr-2 text-gold" /> Smart Planner</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/premium"><Crown className="w-4 h-4 mr-2 text-gold" /> Premium</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => signOut()}>
                   <LogOut className="w-4 h-4 mr-2" /> Se déconnecter

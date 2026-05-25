@@ -10,6 +10,8 @@ import { MatchStep } from "@/components/lesson/MatchStep";
 import { FillBlankStep } from "@/components/lesson/FillBlankStep";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/lesson/$surahId")({
   head: () => ({
@@ -39,6 +41,7 @@ function LessonPage() {
   const surah = SURAHS.find((s) => s.id === Number(surahId));
   const { completeSurah, progress } = useProgress();
   const { trackLesson, addCoins } = useGame();
+  const { user } = useAuth();
 
   const steps = useMemo(() => (surah ? buildSteps(surah.ayahs.length) : []), [surah]);
   const [stepIdx, setStepIdx] = useState(0);
@@ -64,6 +67,19 @@ function LessonPage() {
       completeSurah(surah.id, xpGain);
       trackLesson(xpGain);
       addCoins(coinsGain);
+      // Spaced repetition: upsert surah_progress
+      if (user) {
+        const ratio = steps.length ? correctCount / steps.length : 1;
+        const strengthBump = Math.round(10 + ratio * 30);
+        supabase.from("surah_progress").upsert({
+          user_id: user.id,
+          surah_number: surah.number,
+          verses_memorized: surah.ayahs.map((_, i) => i + 1),
+          status: ratio >= 0.8 ? "memorized" : "in_progress",
+          memory_strength: Math.min(100, strengthBump + 40),
+          last_reviewed_at: new Date().toISOString(),
+        } as any, { onConflict: "user_id,surah_number" }).then(() => {});
+      }
       setDone(true);
     } else {
       setStepIdx((i) => i + 1);
