@@ -2,10 +2,13 @@ import { Link } from "@tanstack/react-router";
 import { Lock, Check, Star } from "lucide-react";
 import { CURRICULUM, FLAT_CURRICULUM, isNodeUnlocked, type CurriculumNode } from "@/lib/curriculum";
 import { useProgress } from "@/lib/progress";
+import { useSurahProgress } from "@/lib/surah-progress";
+import { getStrengthColor } from "@/lib/spaced-repetition";
 import { cn } from "@/lib/utils";
 
 export function SurahPath() {
   const { progress, ready } = useProgress();
+  const { byNumber } = useSurahProgress();
   if (!ready) return null;
 
   let flatIndex = -1;
@@ -33,6 +36,8 @@ export function SurahPath() {
               const unlocked = isNodeUnlocked(idx, progress.completed);
               const completed = node.surahId != null && progress.completed.includes(node.surahId);
               const offset = [0, 60, 30, -30, -60, -30, 0][i % 7];
+              const sr = byNumber.get(node.quranNumber);
+              const srColor = sr ? getStrengthColor(sr.memory_strength, sr.last_reviewed_at).color : null;
               return (
                 <div
                   key={`${section.id}-${node.quranNumber}`}
@@ -44,6 +49,7 @@ export function SurahPath() {
                     unlocked={unlocked}
                     completed={completed}
                     isFirst={idx === 0}
+                    srColor={srColor}
                   />
                 </div>
               );
@@ -63,11 +69,13 @@ function SurahNode({
   unlocked,
   completed,
   isFirst,
+  srColor,
 }: {
   node: CurriculumNode;
   unlocked: boolean;
   completed: boolean;
   isFirst: boolean;
+  srColor: string | null;
 }) {
   const interactive = unlocked && !node.comingSoon && node.surahId != null;
   const inner = (
@@ -102,6 +110,15 @@ function SurahNode({
           <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-muted grid place-items-center border-4 border-background">
             <Star className="w-3 h-3 text-muted-foreground" />
           </div>
+        )}
+        {srColor && (
+          <div
+            className={cn(
+              "absolute -top-1 -left-1 w-4 h-4 rounded-full border-2 border-background",
+              srColor
+            )}
+            aria-label="Force de mémoire"
+          />
         )}
       </div>
       <div className="text-center pt-1">
