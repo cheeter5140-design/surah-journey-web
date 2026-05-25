@@ -1,8 +1,11 @@
-import { Volume2 } from "lucide-react";
+import { Volume2, Eye, EyeOff, Lock } from "lucide-react";
 import { useRef, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { ayahAudioUrl, type Ayah, type Surah } from "@/lib/surahs";
 import { Button } from "@/components/ui/button";
 import { VoiceRecorder } from "./VoiceRecorder";
+import { usePremium } from "@/lib/premium";
+import { cn } from "@/lib/utils";
 
 interface Props {
   surah: Surah;
@@ -15,6 +18,8 @@ export function ListenStep({ surah, ayah, ayahIndex, onContinue }: Props) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState(false);
   const [played, setPlayed] = useState(false);
+  const [peeking, setPeeking] = useState(false);
+  const { is_premium } = usePremium();
 
   const play = () => {
     const url = ayahAudioUrl(surah.number, ayahIndex);
@@ -43,9 +48,37 @@ export function ListenStep({ surah, ayah, ayahIndex, onContinue }: Props) {
           <Volume2 className={`w-8 h-8 ${playing ? "animate-pulse" : ""}`} />
         </button>
 
-        <p className="font-arabic text-3xl leading-loose text-center text-foreground">
-          {ayah.arabic}
-        </p>
+        <div className="relative w-full">
+          <p
+            className={cn(
+              "font-arabic text-3xl leading-loose text-center text-foreground transition-all duration-200",
+              is_premium && !peeking && "blur-md select-none"
+            )}
+          >
+            {ayah.arabic}
+          </p>
+          {is_premium ? (
+            <button
+              type="button"
+              onMouseDown={() => setPeeking(true)}
+              onMouseUp={() => setPeeking(false)}
+              onMouseLeave={() => setPeeking(false)}
+              onTouchStart={() => setPeeking(true)}
+              onTouchEnd={() => setPeeking(false)}
+              className="mt-3 mx-auto flex items-center gap-2 text-xs font-bold text-primary bg-primary/10 px-3 py-1.5 rounded-full"
+            >
+              {peeking ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+              {peeking ? "Caché au relâchement" : "Maintenir pour dévoiler"}
+            </button>
+          ) : (
+            <Link
+              to="/premium"
+              className="mt-3 mx-auto inline-flex items-center gap-2 text-xs font-bold text-muted-foreground bg-muted px-3 py-1.5 rounded-full"
+            >
+              <Lock className="w-3.5 h-3.5" /> Peeking Mode · Premium
+            </Link>
+          )}
+        </div>
 
         <div className="w-full border-t border-border pt-4 flex flex-col gap-2">
           <div>
