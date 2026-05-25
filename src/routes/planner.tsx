@@ -108,7 +108,7 @@ function PlannerPage() {
       updated = recompute(plan, idx, true);
     }
     setPlans(plans.map(p => p.id === plan.id ? updated : p));
-    await supabase.from("study_plans").update({ items: updated.items: updated.items as any, target_date: updated.items.at(-1)!.date }).eq("id", plan.id);
+    await supabase.from("study_plans").update({ items: updated.items as any, target_date: updated.items.at(-1)!.date }).eq("id", plan.id);
   };
 
   return (
