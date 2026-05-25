@@ -85,6 +85,12 @@ export function TopBar() {
                 <DropdownMenuItem asChild>
                   <Link to="/onboarding"><UserIcon className="w-4 h-4 mr-2" /> Modifier le profil</Link>
                 </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/planner"><Crown className="w-4 h-4 mr-2 text-gold" /> Smart Planner</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/premium"><Crown className="w-4 h-4 mr-2 text-gold" /> Premium</Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => signOut()}>
                   <LogOut className="w-4 h-4 mr-2" /> Se déconnecter
                 </DropdownMenuItem>
