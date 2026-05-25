@@ -50,7 +50,7 @@ function PlannerPage() {
   useEffect(() => {
     if (!ready || !user) return;
     supabase.from("study_plans").select("*").eq("user_id", user.id).order("created_at", { ascending: false })
-      .then(({ data }) => { setPlans((data as Plan[]) || []); setLoading(false); });
+      .then(({ data }) => { setPlans((data as unknown as Plan[]) || []); setLoading(false); });
   }, [user, ready]);
 
   if (!ready || premLoading) {
@@ -62,9 +62,9 @@ function PlannerPage() {
     const items = distribute(surah.verses, days);
     const target = items[items.length - 1].date;
     const { data, error } = await supabase.from("study_plans").insert({
-      user_id: user!.id, surah_number: surahNum, target_date: target, items,
+      user_id: user!.id, surah_number: surahNum, target_date: target, items: items as any,
     }).select().single();
-    if (!error && data) setPlans([data as Plan, ...plans]);
+    if (!error && data) setPlans([data as unknown as Plan, ...plans]);
   };
 
   const recompute = (plan: Plan, changedIdx: number, missed: boolean): Plan => {
@@ -108,7 +108,7 @@ function PlannerPage() {
       updated = recompute(plan, idx, true);
     }
     setPlans(plans.map(p => p.id === plan.id ? updated : p));
-    await supabase.from("study_plans").update({ items: updated.items, target_date: updated.items.at(-1)!.date }).eq("id", plan.id);
+    await supabase.from("study_plans").update({ items: updated.items: updated.items as any, target_date: updated.items.at(-1)!.date }).eq("id", plan.id);
   };
 
   return (
