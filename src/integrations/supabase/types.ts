@@ -68,6 +68,102 @@ export type Database = {
         }
         Relationships: []
       }
+      study_plans: {
+        Row: {
+          created_at: string
+          id: string
+          items: Json
+          surah_number: number
+          target_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          items?: Json
+          surah_number: number
+          target_date: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          items?: Json
+          surah_number?: number
+          target_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      surah_progress: {
+        Row: {
+          created_at: string
+          id: string
+          last_reviewed_at: string | null
+          memory_strength: number
+          status: string
+          surah_number: number
+          updated_at: string
+          user_id: string
+          verses_memorized: number[]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_reviewed_at?: string | null
+          memory_strength?: number
+          status?: string
+          surah_number: number
+          updated_at?: string
+          user_id: string
+          verses_memorized?: number[]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_reviewed_at?: string | null
+          memory_strength?: number
+          status?: string
+          surah_number?: number
+          updated_at?: string
+          user_id?: string
+          verses_memorized?: number[]
+        }
+        Relationships: []
+      }
+      user_profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          is_premium: boolean
+          stripe_customer_id: string | null
+          subscription_status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          is_premium?: boolean
+          stripe_customer_id?: string | null
+          subscription_status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          is_premium?: boolean
+          stripe_customer_id?: string | null
+          subscription_status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_progress: {
         Row: {
           ad_chests_date: string | null
