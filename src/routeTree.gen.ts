@@ -10,16 +10,29 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WardrobeRouteImport } from './routes/wardrobe'
+import { Route as PremiumRouteImport } from './routes/premium'
+import { Route as PlannerRouteImport } from './routes/planner'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as ChestsRouteImport } from './routes/chests'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LessonSurahIdRouteImport } from './routes/lesson.$surahId'
+import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe-webhook'
 
 const WardrobeRoute = WardrobeRouteImport.update({
   id: '/wardrobe',
   path: '/wardrobe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PremiumRoute = PremiumRouteImport.update({
+  id: '/premium',
+  path: '/premium',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlannerRoute = PlannerRouteImport.update({
+  id: '/planner',
+  path: '/planner',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnboardingRoute = OnboardingRouteImport.update({
@@ -52,6 +65,11 @@ const LessonSurahIdRoute = LessonSurahIdRouteImport.update({
   path: '/lesson/$surahId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicStripeWebhookRoute = ApiPublicStripeWebhookRouteImport.update({
+  id: '/api/public/stripe-webhook',
+  path: '/api/public/stripe-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -59,8 +77,11 @@ export interface FileRoutesByFullPath {
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
+  '/planner': typeof PlannerRoute
+  '/premium': typeof PremiumRoute
   '/wardrobe': typeof WardrobeRoute
   '/lesson/$surahId': typeof LessonSurahIdRoute
+  '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -68,8 +89,11 @@ export interface FileRoutesByTo {
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
+  '/planner': typeof PlannerRoute
+  '/premium': typeof PremiumRoute
   '/wardrobe': typeof WardrobeRoute
   '/lesson/$surahId': typeof LessonSurahIdRoute
+  '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -78,8 +102,11 @@ export interface FileRoutesById {
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
+  '/planner': typeof PlannerRoute
+  '/premium': typeof PremiumRoute
   '/wardrobe': typeof WardrobeRoute
   '/lesson/$surahId': typeof LessonSurahIdRoute
+  '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -89,8 +116,11 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/login'
     | '/onboarding'
+    | '/planner'
+    | '/premium'
     | '/wardrobe'
     | '/lesson/$surahId'
+    | '/api/public/stripe-webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -98,8 +128,11 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/login'
     | '/onboarding'
+    | '/planner'
+    | '/premium'
     | '/wardrobe'
     | '/lesson/$surahId'
+    | '/api/public/stripe-webhook'
   id:
     | '__root__'
     | '/'
@@ -107,8 +140,11 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/login'
     | '/onboarding'
+    | '/planner'
+    | '/premium'
     | '/wardrobe'
     | '/lesson/$surahId'
+    | '/api/public/stripe-webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -117,8 +153,11 @@ export interface RootRouteChildren {
   LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
   OnboardingRoute: typeof OnboardingRoute
+  PlannerRoute: typeof PlannerRoute
+  PremiumRoute: typeof PremiumRoute
   WardrobeRoute: typeof WardrobeRoute
   LessonSurahIdRoute: typeof LessonSurahIdRoute
+  ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -128,6 +167,20 @@ declare module '@tanstack/react-router' {
       path: '/wardrobe'
       fullPath: '/wardrobe'
       preLoaderRoute: typeof WardrobeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/premium': {
+      id: '/premium'
+      path: '/premium'
+      fullPath: '/premium'
+      preLoaderRoute: typeof PremiumRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/planner': {
+      id: '/planner'
+      path: '/planner'
+      fullPath: '/planner'
+      preLoaderRoute: typeof PlannerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboarding': {
@@ -172,6 +225,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LessonSurahIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/stripe-webhook': {
+      id: '/api/public/stripe-webhook'
+      path: '/api/public/stripe-webhook'
+      fullPath: '/api/public/stripe-webhook'
+      preLoaderRoute: typeof ApiPublicStripeWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -181,8 +241,11 @@ const rootRouteChildren: RootRouteChildren = {
   LeaderboardRoute: LeaderboardRoute,
   LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRoute,
+  PlannerRoute: PlannerRoute,
+  PremiumRoute: PremiumRoute,
   WardrobeRoute: WardrobeRoute,
   LessonSurahIdRoute: LessonSurahIdRoute,
+  ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
