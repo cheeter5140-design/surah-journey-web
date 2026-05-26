@@ -2,7 +2,9 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { TopBar } from "@/components/TopBar";
+import { BottomNav } from "@/components/BottomNav";
 import { SurahPath } from "@/components/SurahPath";
+
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/lib/profile";
 
@@ -51,6 +53,8 @@ function Index() {
       <main className="flex-1">
         <SurahPath />
       </main>
+      <BottomNav />
     </div>
   );
 }
+
