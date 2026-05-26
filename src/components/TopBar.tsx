@@ -1,4 +1,4 @@
-import { Flame, Star, BookOpen, LogOut, User as UserIcon, Trophy, Coins, Gift, Shirt, Crown } from "lucide-react";
+import { Flame, Star, BookOpen, LogOut, User as UserIcon, Trophy, Coins, Gift, Shirt, Crown, LayoutDashboard, Sparkles, BarChart3 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useProgress } from "@/lib/progress";
 import { useAuth } from "@/hooks/useAuth";
@@ -13,6 +13,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+const tabs = [
+  { to: "/", label: "Parcours", icon: LayoutDashboard, exact: true },
+  { to: "/planner", label: "Planner", icon: BarChart3, exact: false },
+  { to: "/leaderboard", label: "Communauté", icon: Trophy, exact: false },
+  { to: "/premium", label: "Sadaqah & Premium", icon: Crown, exact: false },
+] as const;
+
 export function TopBar() {
   const { progress } = useProgress();
   const { user, signOut } = useAuth();
@@ -20,7 +27,7 @@ export function TopBar() {
   const { state } = useGame();
   return (
     <header className="sticky top-0 z-40 backdrop-blur-md bg-background/80 border-b border-border">
-      <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
+      <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
         <Link to="/" className="flex items-center gap-2 shrink-0">
           <div className="w-9 h-9 rounded-2xl bg-[image:var(--gradient-primary)] grid place-items-center text-primary-foreground shadow-[var(--shadow-soft)]">
             <BookOpen className="w-5 h-5" />
@@ -44,20 +51,6 @@ export function TopBar() {
             className="w-9 h-9 rounded-full bg-secondary grid place-items-center hover:ring-2 ring-primary/30 transition"
           >
             <Shirt className="w-4 h-4 text-primary" />
-          </Link>
-          <Link
-            to="/premium"
-            aria-label="Premium"
-            className="w-9 h-9 rounded-full bg-gradient-to-br from-gold/20 to-primary/20 grid place-items-center hover:ring-2 ring-gold/40 transition"
-          >
-            <Crown className="w-4 h-4 text-gold" fill="currentColor" />
-          </Link>
-          <Link
-            to="/leaderboard"
-            aria-label="Classement"
-            className="w-9 h-9 rounded-full bg-secondary grid place-items-center hover:ring-2 ring-primary/30 transition"
-          >
-            <Trophy className="w-4 h-4 text-gold" fill="currentColor" />
           </Link>
           {user && (
             <DropdownMenu>
@@ -86,7 +79,7 @@ export function TopBar() {
                   <Link to="/onboarding"><UserIcon className="w-4 h-4 mr-2" /> Modifier le profil</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/planner"><Crown className="w-4 h-4 mr-2 text-gold" /> Smart Planner</Link>
+                  <Link to="/planner"><Sparkles className="w-4 h-4 mr-2 text-primary" /> Smart Planner</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to="/premium"><Crown className="w-4 h-4 mr-2 text-gold" /> Premium</Link>
@@ -99,6 +92,21 @@ export function TopBar() {
           )}
         </div>
       </div>
+      <nav className="max-w-5xl mx-auto px-4 pb-2">
+        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar -mx-1 px-1">
+          {tabs.map((t) => (
+            <Link
+              key={t.to}
+              to={t.to}
+              activeOptions={{ exact: t.exact }}
+              className="group shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors data-[status=active]:text-primary-foreground data-[status=active]:bg-[image:var(--gradient-primary)] data-[status=active]:shadow-[var(--shadow-soft)]"
+            >
+              <t.icon className="w-4 h-4" />
+              <span className="whitespace-nowrap">{t.label}</span>
+            </Link>
+          ))}
+        </div>
+      </nav>
     </header>
   );
 }
