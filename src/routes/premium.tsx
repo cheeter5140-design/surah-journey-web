@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
-  Crown, Check, Sparkles, Eye, CalendarDays, Flame, Loader2, ArrowLeft,
+  Crown, Check, Sparkles, Eye, CalendarDays, Loader2, ArrowLeft,
   BookOpen, Headphones, Mic, Trophy, HeartHandshake, Brain, ShieldCheck, Infinity as InfinityIcon,
 } from "lucide-react";
 import { TopBar } from "@/components/TopBar";
