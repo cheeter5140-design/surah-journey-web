@@ -132,3 +132,69 @@
   h1, h2, h3 { font-family: var(--font-display); }
   .font-arabic { font-family: var(--font-arabic); direction: rtl; }
 }
+
+/* ===== V3: Themes ===== */
+:root[data-theme="pure-white"] {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.18 0.02 160);
+  --muted: oklch(0.96 0.005 150);
+  --border: oklch(0.92 0.008 155);
+}
+:root[data-theme="pure-white"] body { background: linear-gradient(180deg, #ffffff, #fafbfa); }
+
+:root[data-theme="deep-night"] {
+  --background: oklch(0.18 0.03 220);
+  --foreground: oklch(0.96 0.01 150);
+  --card: oklch(0.22 0.03 220);
+  --card-foreground: oklch(0.96 0.01 150);
+  --popover: oklch(0.22 0.03 220);
+  --popover-foreground: oklch(0.96 0.01 150);
+  --muted: oklch(0.27 0.03 220);
+  --muted-foreground: oklch(0.72 0.02 150);
+  --secondary: oklch(0.27 0.03 220);
+  --secondary-foreground: oklch(0.92 0.01 150);
+  --accent: oklch(0.3 0.05 200);
+  --accent-foreground: oklch(0.96 0.01 150);
+  --border: oklch(0.32 0.03 220);
+  --input: oklch(0.32 0.03 220);
+  --primary-glow: oklch(0.78 0.16 158);
+}
+:root[data-theme="deep-night"] body {
+  background: radial-gradient(1200px 600px at 80% -10%, oklch(0.32 0.08 200 / 0.5), transparent 60%),
+    linear-gradient(180deg, #0a1224, #0e1f1c);
+}
+
+:root[data-theme="soft-emerald"] body {
+  background: linear-gradient(180deg, oklch(0.97 0.04 155), oklch(0.92 0.07 160));
+}
+
+:root[data-theme="geometric"] body {
+  background-color: oklch(0.97 0.02 150);
+  background-image:
+    radial-gradient(circle at 25% 25%, oklch(0.62 0.15 158 / 0.12) 0 12%, transparent 13%),
+    radial-gradient(circle at 75% 25%, oklch(0.82 0.16 80 / 0.1) 0 10%, transparent 11%),
+    radial-gradient(circle at 50% 75%, oklch(0.62 0.15 158 / 0.1) 0 14%, transparent 15%),
+    linear-gradient(180deg, oklch(0.99 0.01 150), oklch(0.96 0.03 155));
+  background-size: 90px 90px, 90px 90px, 90px 90px, 100% 100%;
+}
+
+/* ===== Glassmorphism ===== */
+.glass-panel {
+  background: color-mix(in oklab, var(--card) 65%, transparent);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
+  box-shadow: var(--shadow-soft);
+}
+
+/* ===== Mastered node glow ===== */
+.node-mastered { position: relative; }
+.node-mastered::before {
+  content: "";
+  position: absolute; inset: -6px;
+  border-radius: 9999px;
+  background: conic-gradient(from 0deg, var(--gold), var(--primary-glow), var(--gold));
+  filter: blur(8px); opacity: 0.55; z-index: -1;
+  animation: border-spin 4s linear infinite;
+  background-size: 200% 200%;
+}
