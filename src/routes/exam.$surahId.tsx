@@ -36,6 +36,13 @@ function ExamPage() {
 
   const blankAyahs = useMemo(() => surah?.ayahs ?? [], [surah]);
 
+  // Timer (declared before any early return to keep hook order stable)
+  useEffect(() => {
+    if (!reciteRunning) return;
+    const id = setInterval(() => setReciteSeconds((s) => s + 1), 1000);
+    return () => clearInterval(id);
+  }, [reciteRunning]);
+
   if (!surah) {
     return (
       <div className="min-h-screen grid place-items-center">
@@ -44,12 +51,6 @@ function ExamPage() {
     );
   }
 
-  // Timer
-  useEffect(() => {
-    if (!reciteRunning) return;
-    const id = setInterval(() => setReciteSeconds((s) => s + 1), 1000);
-    return () => clearInterval(id);
-  }, [reciteRunning]);
 
 
   const handleBlankContinue = (correct: boolean) => {
