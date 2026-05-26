@@ -1,19 +1,23 @@
 import { Link } from "@tanstack/react-router";
-import { Lock, Check, Star } from "lucide-react";
+import { Lock, Check, Star, Medal, GraduationCap } from "lucide-react";
 import { CURRICULUM, FLAT_CURRICULUM, isNodeUnlocked, type CurriculumNode } from "@/lib/curriculum";
 import { useProgress } from "@/lib/progress";
 import { useSurahProgress } from "@/lib/surah-progress";
+import { useMastery, badgeColor, type Badge } from "@/lib/mastery";
 import { getStrengthColor } from "@/lib/spaced-repetition";
 import { cn } from "@/lib/utils";
 
 export function SurahPath() {
   const { progress, ready } = useProgress();
   const { byNumber } = useSurahProgress();
+  const { mastery } = useMastery();
   if (!ready) return null;
+
+  const masteredIds = Object.keys(mastery).map(Number);
 
   let flatIndex = -1;
   return (
-    <div className="max-w-md mx-auto px-4 py-8">
+    <div className="max-w-md mx-auto px-4 py-8 pb-32 md:pb-8">
       {CURRICULUM.map((section) => (
         <div key={section.id} className="mb-14">
           <div className="text-center mb-8">
@@ -33,16 +37,18 @@ export function SurahPath() {
             {section.nodes.map((node, i) => {
               flatIndex += 1;
               const idx = flatIndex;
-              const unlocked = isNodeUnlocked(idx, progress.completed);
+              const unlocked = isNodeUnlocked(idx, progress.completed, masteredIds);
               const completed = node.surahId != null && progress.completed.includes(node.surahId);
+              const masteryEntry = node.surahId != null ? mastery[node.surahId] : undefined;
               const offset = [0, 60, 30, -30, -60, -30, 0][i % 7];
               const sr = byNumber.get(node.quranNumber);
               const srColor = sr ? getStrengthColor(sr.memory_strength, sr.last_reviewed_at).color : null;
+              const showExam = unlocked && completed && !masteryEntry && node.surahId != null;
               return (
                 <div
                   key={`${section.id}-${node.quranNumber}`}
                   style={{ transform: `translateX(${offset}px)` }}
-                  className="relative"
+                  className="relative animate-fade-in-up"
                 >
                   <SurahNode
                     node={node}
@@ -50,7 +56,19 @@ export function SurahPath() {
                     completed={completed}
                     isFirst={idx === 0}
                     srColor={srColor}
+                    badge={masteryEntry?.badge}
+                    mastered={!!masteryEntry}
                   />
+                  {showExam && (
+                    <Link
+                      to="/exam/$surahId"
+                      params={{ surahId: String(node.surahId) }}
+                      className="absolute left-1/2 -bottom-7 -translate-x-1/2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gold text-primary-foreground text-xs font-bold uppercase tracking-wider shadow-[var(--shadow-gold)] active:translate-y-0.5 animate-glow-pulse whitespace-nowrap"
+                    >
+                      <GraduationCap className="w-3.5 h-3.5" />
+                      Évaluation finale
+                    </Link>
+                  )}
                 </div>
               );
             })}
@@ -70,12 +88,16 @@ function SurahNode({
   completed,
   isFirst,
   srColor,
+  badge,
+  mastered,
 }: {
   node: CurriculumNode;
   unlocked: boolean;
   completed: boolean;
   isFirst: boolean;
   srColor: string | null;
+  badge?: Badge;
+  mastered: boolean;
 }) {
   const interactive = unlocked && !node.comingSoon && node.surahId != null;
   const inner = (
@@ -84,21 +106,29 @@ function SurahNode({
         className={cn(
           "relative w-24 h-24 rounded-full grid place-items-center text-4xl transition-all duration-200",
           interactive && "active:translate-y-1",
-          interactive && !completed && "bg-[image:var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-node)] group-hover:scale-105",
-          interactive && completed && "bg-gold text-primary-foreground shadow-[var(--shadow-gold)]",
+          interactive && !mastered && "bg-[image:var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-node)] group-hover:scale-105",
+          interactive && mastered && "bg-gold text-primary-foreground shadow-[var(--shadow-gold)] node-mastered",
           (!unlocked || node.comingSoon) && "bg-muted text-muted-foreground/40 shadow-[var(--shadow-node-locked)] cursor-not-allowed",
-          isFirst && interactive && !completed && "animate-float"
+          isFirst && interactive && !mastered && "animate-float"
         )}
       >
-        <span>{node.icon}</span>
+        <span className="drop-shadow-sm">{node.icon}</span>
         {!unlocked && (
           <div className="absolute inset-0 grid place-items-center">
             <Lock className="w-7 h-7" />
           </div>
         )}
-        {completed && (
+        {completed && !mastered && (
           <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-success grid place-items-center border-4 border-background">
             <Check className="w-4 h-4 text-white" strokeWidth={3} />
+          </div>
+        )}
+        {badge && (
+          <div className={cn(
+            "absolute -bottom-1 -right-1 w-9 h-9 rounded-full grid place-items-center border-4 border-background",
+            badgeColor(badge)
+          )}>
+            <Medal className="w-4 h-4 text-white" strokeWidth={2.5} />
           </div>
         )}
         {unlocked && node.comingSoon && (
