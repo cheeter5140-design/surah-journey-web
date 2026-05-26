@@ -96,19 +96,23 @@ function LessonPage() {
           </div>
           <div>
             <h1 className="font-display text-4xl font-bold">Leçon terminée !</h1>
-            <p className="text-muted-foreground mt-2">Tu as appris la sourate {surah.name}</p>
+            <p className="text-muted-foreground mt-2">Tu as étudié la sourate {surah.name}</p>
           </div>
           <div className="grid grid-cols-2 gap-3 w-full">
             <Stat icon={<Star className="w-5 h-5 text-gold" fill="currentColor" />} value={`+${xpGain}`} label="XP gagnés" />
             <Stat icon={<Flame className="w-5 h-5 text-orange-500" fill="currentColor" />} value={progress.streak} label="jour(s) d'affilée" />
           </div>
-          <Button asChild className="w-full h-14 rounded-2xl font-bold uppercase tracking-wide shadow-[var(--shadow-node)] active:translate-y-1">
-            <Link to="/">Continuer</Link>
+          <Button asChild className="w-full h-14 rounded-2xl font-bold uppercase tracking-wide shadow-[var(--shadow-gold)] bg-gold hover:bg-gold/90 text-primary-foreground active:translate-y-1 animate-glow-pulse">
+            <Link to="/exam/$surahId" params={{ surahId: String(surah.id) }}>Passer l'évaluation finale</Link>
+          </Button>
+          <Button asChild variant="outline" className="w-full h-12 rounded-2xl">
+            <Link to="/">Retour au parcours</Link>
           </Button>
         </div>
       </div>
     );
   }
+
 
   const step = steps[stepIdx];
   const ayah = surah.ayahs[step.ayahIndex];
