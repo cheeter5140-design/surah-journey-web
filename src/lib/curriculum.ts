@@ -119,13 +119,20 @@ export const CURRICULUM: Section[] = [
 // Flat list of curriculum nodes (in unlock order)
 export const FLAT_CURRICULUM: CurriculumNode[] = CURRICULUM.flatMap((s) => s.nodes);
 
-// A node is unlocked if it is the first OR the previous curated node is completed.
+// A node is unlocked if it is the first OR the previous curated node has been
+// validated via the final exam (mastery entry exists). Falls back to "completed"
+// for backwards compatibility when no mastery map is provided.
 // "Coming soon" stubs do not block progression — they are skipped.
-export function isNodeUnlocked(index: number, completedSurahIds: number[]): boolean {
+export function isNodeUnlocked(
+  index: number,
+  completedSurahIds: number[],
+  masteredSurahIds?: number[]
+): boolean {
   if (index === 0) return true;
   for (let i = index - 1; i >= 0; i--) {
     const prev = FLAT_CURRICULUM[i];
     if (prev.surahId == null) continue; // skip stubs
+    if (masteredSurahIds) return masteredSurahIds.includes(prev.surahId);
     return completedSurahIds.includes(prev.surahId);
   }
   return true;
