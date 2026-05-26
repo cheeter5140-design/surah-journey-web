@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { X, Trophy, Medal, Award, Timer, Mic } from "lucide-react";
 import { SURAHS } from "@/lib/surahs";
 import { FillBlankStep } from "@/components/lesson/FillBlankStep";
@@ -45,12 +45,12 @@ function ExamPage() {
   }
 
   // Timer
-  useMemo(() => {
+  useEffect(() => {
     if (!reciteRunning) return;
     const id = setInterval(() => setReciteSeconds((s) => s + 1), 1000);
     return () => clearInterval(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reciteRunning]);
+
 
   const handleBlankContinue = (correct: boolean) => {
     if (!correct) setBlankErrors((e) => e + 1);
