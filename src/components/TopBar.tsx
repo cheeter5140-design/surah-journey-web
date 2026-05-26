@@ -4,6 +4,7 @@ import { useProgress } from "@/lib/progress";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/lib/profile";
 import { useGame } from "@/lib/game";
+import { SettingsDrawer } from "@/components/SettingsDrawer";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,10 +16,12 @@ import {
 
 const tabs = [
   { to: "/", label: "Parcours", icon: LayoutDashboard, exact: true },
-  { to: "/planner", label: "Planner", icon: BarChart3, exact: false },
+  { to: "/planner", label: "Planner", icon: Sparkles, exact: false },
+  { to: "/stats", label: "Stats", icon: BarChart3, exact: false },
   { to: "/leaderboard", label: "Communauté", icon: Trophy, exact: false },
-  { to: "/premium", label: "Sadaqah & Premium", icon: Crown, exact: false },
+  { to: "/premium", label: "Premium", icon: Crown, exact: false },
 ] as const;
+
 
 export function TopBar() {
   const { progress } = useProgress();
@@ -52,9 +55,11 @@ export function TopBar() {
           >
             <Shirt className="w-4 h-4 text-primary" />
           </Link>
+          <SettingsDrawer />
           {user && (
             <DropdownMenu>
               <DropdownMenuTrigger className="w-9 h-9 rounded-full bg-secondary grid place-items-center hover:ring-2 ring-primary/30 transition overflow-hidden">
+
                 {user.user_metadata?.avatar_url ? (
                   <img src={user.user_metadata.avatar_url} alt="" className="w-9 h-9 rounded-full" />
                 ) : profile ? (
