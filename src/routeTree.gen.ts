@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WardrobeRouteImport } from './routes/wardrobe'
+import { Route as StatsRouteImport } from './routes/stats'
 import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as PlannerRouteImport } from './routes/planner'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
@@ -18,11 +19,17 @@ import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as ChestsRouteImport } from './routes/chests'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LessonSurahIdRouteImport } from './routes/lesson.$surahId'
+import { Route as ExamSurahIdRouteImport } from './routes/exam.$surahId'
 import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe-webhook'
 
 const WardrobeRoute = WardrobeRouteImport.update({
   id: '/wardrobe',
   path: '/wardrobe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StatsRoute = StatsRouteImport.update({
+  id: '/stats',
+  path: '/stats',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PremiumRoute = PremiumRouteImport.update({
@@ -65,6 +72,11 @@ const LessonSurahIdRoute = LessonSurahIdRouteImport.update({
   path: '/lesson/$surahId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ExamSurahIdRoute = ExamSurahIdRouteImport.update({
+  id: '/exam/$surahId',
+  path: '/exam/$surahId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicStripeWebhookRoute = ApiPublicStripeWebhookRouteImport.update({
   id: '/api/public/stripe-webhook',
   path: '/api/public/stripe-webhook',
@@ -79,7 +91,9 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof OnboardingRoute
   '/planner': typeof PlannerRoute
   '/premium': typeof PremiumRoute
+  '/stats': typeof StatsRoute
   '/wardrobe': typeof WardrobeRoute
+  '/exam/$surahId': typeof ExamSurahIdRoute
   '/lesson/$surahId': typeof LessonSurahIdRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
 }
@@ -91,7 +105,9 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingRoute
   '/planner': typeof PlannerRoute
   '/premium': typeof PremiumRoute
+  '/stats': typeof StatsRoute
   '/wardrobe': typeof WardrobeRoute
+  '/exam/$surahId': typeof ExamSurahIdRoute
   '/lesson/$surahId': typeof LessonSurahIdRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
 }
@@ -104,7 +120,9 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRoute
   '/planner': typeof PlannerRoute
   '/premium': typeof PremiumRoute
+  '/stats': typeof StatsRoute
   '/wardrobe': typeof WardrobeRoute
+  '/exam/$surahId': typeof ExamSurahIdRoute
   '/lesson/$surahId': typeof LessonSurahIdRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
 }
@@ -118,7 +136,9 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/planner'
     | '/premium'
+    | '/stats'
     | '/wardrobe'
+    | '/exam/$surahId'
     | '/lesson/$surahId'
     | '/api/public/stripe-webhook'
   fileRoutesByTo: FileRoutesByTo
@@ -130,7 +150,9 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/planner'
     | '/premium'
+    | '/stats'
     | '/wardrobe'
+    | '/exam/$surahId'
     | '/lesson/$surahId'
     | '/api/public/stripe-webhook'
   id:
@@ -142,7 +164,9 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/planner'
     | '/premium'
+    | '/stats'
     | '/wardrobe'
+    | '/exam/$surahId'
     | '/lesson/$surahId'
     | '/api/public/stripe-webhook'
   fileRoutesById: FileRoutesById
@@ -155,7 +179,9 @@ export interface RootRouteChildren {
   OnboardingRoute: typeof OnboardingRoute
   PlannerRoute: typeof PlannerRoute
   PremiumRoute: typeof PremiumRoute
+  StatsRoute: typeof StatsRoute
   WardrobeRoute: typeof WardrobeRoute
+  ExamSurahIdRoute: typeof ExamSurahIdRoute
   LessonSurahIdRoute: typeof LessonSurahIdRoute
   ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
 }
@@ -167,6 +193,13 @@ declare module '@tanstack/react-router' {
       path: '/wardrobe'
       fullPath: '/wardrobe'
       preLoaderRoute: typeof WardrobeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stats': {
+      id: '/stats'
+      path: '/stats'
+      fullPath: '/stats'
+      preLoaderRoute: typeof StatsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/premium': {
@@ -225,6 +258,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LessonSurahIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/exam/$surahId': {
+      id: '/exam/$surahId'
+      path: '/exam/$surahId'
+      fullPath: '/exam/$surahId'
+      preLoaderRoute: typeof ExamSurahIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/stripe-webhook': {
       id: '/api/public/stripe-webhook'
       path: '/api/public/stripe-webhook'
@@ -243,10 +283,22 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingRoute: OnboardingRoute,
   PlannerRoute: PlannerRoute,
   PremiumRoute: PremiumRoute,
+  StatsRoute: StatsRoute,
   WardrobeRoute: WardrobeRoute,
+  ExamSurahIdRoute: ExamSurahIdRoute,
   LessonSurahIdRoute: LessonSurahIdRoute,
   ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
