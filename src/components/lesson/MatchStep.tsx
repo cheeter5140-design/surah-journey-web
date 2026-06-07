@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Ayah } from "@/lib/surahs";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -27,6 +27,14 @@ export function MatchStep({ ayah, onContinue }: Props) {
   const [selectedFr, setSelectedFr] = useState<number | null>(null);
   const [wrong, setWrong] = useState<{ ar: number; fr: number } | null>(null);
   const [checked, setChecked] = useState<null | boolean>(null);
+
+  useEffect(() => {
+    setPairs({});
+    setSelectedAr(null);
+    setSelectedFr(null);
+    setWrong(null);
+    setChecked(null);
+  }, [ayah]);
 
   const tryMatch = (ar: number, fr: number) => {
     if (ar === fr) {
