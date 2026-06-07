@@ -25,11 +25,11 @@ export const Route = createFileRoute("/lesson/$surahId")({
 
 type Step = { kind: "listen" | "match" | "blank"; ayahIndex: number };
 
-function buildSteps(ayahCount: number): Step[] {
+function buildSteps(ayahCount: number, longForm = false): Step[] {
   const steps: Step[] = [];
   for (let i = 0; i < ayahCount; i++) {
     steps.push({ kind: "listen", ayahIndex: i });
-    steps.push({ kind: "match", ayahIndex: i });
+    if (!longForm) steps.push({ kind: "match", ayahIndex: i });
     if (i < ayahCount - 1 || ayahCount === 1) steps.push({ kind: "blank", ayahIndex: i });
   }
   return steps;
