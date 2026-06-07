@@ -84,6 +84,11 @@
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
+@keyframes font-reveal {
+  0%   { opacity: 0; transform: translateY(6px) scale(0.96); letter-spacing: 0.25em; filter: blur(6px); }
+  60%  { opacity: 1; letter-spacing: 0.02em; filter: blur(0); }
+  100% { opacity: 1; transform: translateY(0) scale(1); letter-spacing: normal; filter: blur(0); }
+}
 .animate-border-spin { background-size: 200% 200%; animation: border-spin 6s linear infinite; }
 .animate-glow-pulse { animation: glow-pulse 2.4s ease-in-out infinite; }
 .animate-fade-in-up { animation: fade-in-up 0.35s ease-out both; }
