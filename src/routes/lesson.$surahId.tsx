@@ -43,7 +43,7 @@ function LessonPage() {
   const { trackLesson, addCoins } = useGame();
   const { user } = useAuth();
 
-  const steps = useMemo(() => (surah ? buildSteps(surah.ayahs.length) : []), [surah]);
+  const steps = useMemo(() => (surah ? buildSteps(surah.ayahs.length, !!surah.longForm) : []), [surah]);
   const [stepIdx, setStepIdx] = useState(0);
   const [done, setDone] = useState(false);
   const [correctCount, setCorrectCount] = useState(0);
