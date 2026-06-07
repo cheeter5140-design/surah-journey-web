@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Ayah } from "@/lib/surahs";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -34,6 +34,12 @@ export function FillBlankStep({ ayah, onContinue }: Props) {
   const [picked, setPicked] = useState<string | null>(null);
   const [checked, setChecked] = useState(false);
   const correct = picked === correctWord;
+
+  // Reset state whenever the ayah changes (fixes exam showing next question already marked wrong)
+  useEffect(() => {
+    setPicked(null);
+    setChecked(false);
+  }, [ayah]);
 
   return (
     <div className="flex flex-col gap-6 animate-[bounce-in_0.5s]">
