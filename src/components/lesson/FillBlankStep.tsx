@@ -35,6 +35,12 @@ export function FillBlankStep({ ayah, onContinue }: Props) {
   const [checked, setChecked] = useState(false);
   const correct = picked === correctWord;
 
+  // Reset state whenever the ayah changes (fixes exam showing next question already marked wrong)
+  useEffect(() => {
+    setPicked(null);
+    setChecked(false);
+  }, [ayah]);
+
   return (
     <div className="flex flex-col gap-6 animate-[bounce-in_0.5s]">
       <div>
