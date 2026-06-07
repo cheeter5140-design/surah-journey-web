@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Ayah } from "@/lib/surahs";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
