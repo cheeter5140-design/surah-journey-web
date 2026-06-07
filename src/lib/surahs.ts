@@ -906,7 +906,7 @@ export const SURAHS: Surah[] = [
         ],
       },
     ],
-  },,
+  },
   {
     id: 17,
     number: 78,
