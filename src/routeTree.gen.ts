@@ -18,8 +18,10 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as ChestsRouteImport } from './routes/chests'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as QuizJuzIdRouteImport } from './routes/quiz.$juzId'
 import { Route as LessonSurahIdRouteImport } from './routes/lesson.$surahId'
 import { Route as ExamSurahIdRouteImport } from './routes/exam.$surahId'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe-webhook'
 
 const WardrobeRoute = WardrobeRouteImport.update({
@@ -67,6 +69,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const QuizJuzIdRoute = QuizJuzIdRouteImport.update({
+  id: '/quiz/$juzId',
+  path: '/quiz/$juzId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LessonSurahIdRoute = LessonSurahIdRouteImport.update({
   id: '/lesson/$surahId',
   path: '/lesson/$surahId',
@@ -75,6 +82,11 @@ const LessonSurahIdRoute = LessonSurahIdRouteImport.update({
 const ExamSurahIdRoute = ExamSurahIdRouteImport.update({
   id: '/exam/$surahId',
   path: '/exam/$surahId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicStripeWebhookRoute = ApiPublicStripeWebhookRouteImport.update({
@@ -93,8 +105,10 @@ export interface FileRoutesByFullPath {
   '/premium': typeof PremiumRoute
   '/stats': typeof StatsRoute
   '/wardrobe': typeof WardrobeRoute
+  '/api/chat': typeof ApiChatRoute
   '/exam/$surahId': typeof ExamSurahIdRoute
   '/lesson/$surahId': typeof LessonSurahIdRoute
+  '/quiz/$juzId': typeof QuizJuzIdRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
 }
 export interface FileRoutesByTo {
@@ -107,8 +121,10 @@ export interface FileRoutesByTo {
   '/premium': typeof PremiumRoute
   '/stats': typeof StatsRoute
   '/wardrobe': typeof WardrobeRoute
+  '/api/chat': typeof ApiChatRoute
   '/exam/$surahId': typeof ExamSurahIdRoute
   '/lesson/$surahId': typeof LessonSurahIdRoute
+  '/quiz/$juzId': typeof QuizJuzIdRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
 }
 export interface FileRoutesById {
@@ -122,8 +138,10 @@ export interface FileRoutesById {
   '/premium': typeof PremiumRoute
   '/stats': typeof StatsRoute
   '/wardrobe': typeof WardrobeRoute
+  '/api/chat': typeof ApiChatRoute
   '/exam/$surahId': typeof ExamSurahIdRoute
   '/lesson/$surahId': typeof LessonSurahIdRoute
+  '/quiz/$juzId': typeof QuizJuzIdRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
 }
 export interface FileRouteTypes {
@@ -138,8 +156,10 @@ export interface FileRouteTypes {
     | '/premium'
     | '/stats'
     | '/wardrobe'
+    | '/api/chat'
     | '/exam/$surahId'
     | '/lesson/$surahId'
+    | '/quiz/$juzId'
     | '/api/public/stripe-webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -152,8 +172,10 @@ export interface FileRouteTypes {
     | '/premium'
     | '/stats'
     | '/wardrobe'
+    | '/api/chat'
     | '/exam/$surahId'
     | '/lesson/$surahId'
+    | '/quiz/$juzId'
     | '/api/public/stripe-webhook'
   id:
     | '__root__'
@@ -166,8 +188,10 @@ export interface FileRouteTypes {
     | '/premium'
     | '/stats'
     | '/wardrobe'
+    | '/api/chat'
     | '/exam/$surahId'
     | '/lesson/$surahId'
+    | '/quiz/$juzId'
     | '/api/public/stripe-webhook'
   fileRoutesById: FileRoutesById
 }
@@ -181,8 +205,10 @@ export interface RootRouteChildren {
   PremiumRoute: typeof PremiumRoute
   StatsRoute: typeof StatsRoute
   WardrobeRoute: typeof WardrobeRoute
+  ApiChatRoute: typeof ApiChatRoute
   ExamSurahIdRoute: typeof ExamSurahIdRoute
   LessonSurahIdRoute: typeof LessonSurahIdRoute
+  QuizJuzIdRoute: typeof QuizJuzIdRoute
   ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
 }
 
@@ -251,6 +277,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/quiz/$juzId': {
+      id: '/quiz/$juzId'
+      path: '/quiz/$juzId'
+      fullPath: '/quiz/$juzId'
+      preLoaderRoute: typeof QuizJuzIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lesson/$surahId': {
       id: '/lesson/$surahId'
       path: '/lesson/$surahId'
@@ -263,6 +296,13 @@ declare module '@tanstack/react-router' {
       path: '/exam/$surahId'
       fullPath: '/exam/$surahId'
       preLoaderRoute: typeof ExamSurahIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/stripe-webhook': {
@@ -285,20 +325,12 @@ const rootRouteChildren: RootRouteChildren = {
   PremiumRoute: PremiumRoute,
   StatsRoute: StatsRoute,
   WardrobeRoute: WardrobeRoute,
+  ApiChatRoute: ApiChatRoute,
   ExamSurahIdRoute: ExamSurahIdRoute,
   LessonSurahIdRoute: LessonSurahIdRoute,
+  QuizJuzIdRoute: QuizJuzIdRoute,
   ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

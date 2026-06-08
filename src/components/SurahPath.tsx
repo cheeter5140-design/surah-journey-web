@@ -1,6 +1,13 @@
 import { Link } from "@tanstack/react-router";
-import { Lock, Check, Star, Medal, GraduationCap } from "lucide-react";
-import { CURRICULUM, FLAT_CURRICULUM, isNodeUnlocked, type CurriculumNode } from "@/lib/curriculum";
+import { Lock, Check, Star, Medal, GraduationCap, Trophy } from "lucide-react";
+import {
+  CURRICULUM,
+  FLAT_CURRICULUM,
+  isNodeUnlocked,
+  getPassedJuz,
+  juzQuizUnlocked,
+  type CurriculumNode,
+} from "@/lib/curriculum";
 import { useProgress } from "@/lib/progress";
 import { useSurahProgress } from "@/lib/surah-progress";
 import { useMastery, badgeColor, type Badge } from "@/lib/mastery";
@@ -14,6 +21,7 @@ export function SurahPath() {
   if (!ready) return null;
 
   const masteredIds = Object.keys(mastery).map(Number);
+  const passedJuz = getPassedJuz();
 
   let flatIndex = -1;
   return (
@@ -37,10 +45,25 @@ export function SurahPath() {
             {section.nodes.map((node, i) => {
               flatIndex += 1;
               const idx = flatIndex;
-              const unlocked = isNodeUnlocked(idx, progress.completed, masteredIds);
+              const unlocked = isNodeUnlocked(idx, progress.completed, masteredIds, passedJuz);
+              const offset = [0, 60, 30, -30, -60, -30, 0][i % 7];
+
+              if (node.kind === "quiz") {
+                const quizOpen = unlocked && juzQuizUnlocked(node.juzId!, masteredIds);
+                const passed = passedJuz.includes(node.juzId!);
+                return (
+                  <div
+                    key={`${section.id}-quiz-${node.juzId}`}
+                    style={{ transform: `translateX(${offset}px)` }}
+                    className="relative animate-fade-in-up"
+                  >
+                    <QuizNode node={node} open={quizOpen} passed={passed} />
+                  </div>
+                );
+              }
+
               const completed = node.surahId != null && progress.completed.includes(node.surahId);
               const masteryEntry = node.surahId != null ? mastery[node.surahId] : undefined;
-              const offset = [0, 60, 30, -30, -60, -30, 0][i % 7];
               const sr = byNumber.get(node.quranNumber);
               const srColor = sr ? getStrengthColor(sr.memory_strength, sr.last_reviewed_at).color : null;
               const showExam = unlocked && completed && !masteryEntry && node.surahId != null;
@@ -163,6 +186,35 @@ function SurahNode({
   if (!interactive) return inner;
   return (
     <Link to="/lesson/$surahId" params={{ surahId: String(node.surahId) }}>
+      {inner}
+    </Link>
+  );
+}
+
+function QuizNode({ node, open, passed }: { node: CurriculumNode; open: boolean; passed: boolean }) {
+  const inner = (
+    <div className="flex flex-col items-center gap-2 group">
+      <div
+        className={cn(
+          "relative w-24 h-24 rounded-3xl grid place-items-center text-4xl transition-all duration-200",
+          open && !passed && "bg-gold text-primary-foreground shadow-[var(--shadow-gold)] animate-glow-pulse group-hover:scale-105 active:translate-y-1",
+          passed && "bg-[image:var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-node)]",
+          !open && "bg-muted text-muted-foreground/40 shadow-[var(--shadow-node-locked)] cursor-not-allowed"
+        )}
+      >
+        {passed ? <Trophy className="w-10 h-10" /> : open ? <GraduationCap className="w-10 h-10" /> : <Lock className="w-8 h-8" />}
+      </div>
+      <div className="text-center pt-1">
+        <div className="font-display font-bold">{node.name}</div>
+        <div className="text-xs text-muted-foreground">{node.meaning}</div>
+        {!open && <div className="text-[10px] text-muted-foreground mt-0.5">Termine toutes les sourates du Juz</div>}
+        {passed && <div className="text-[10px] font-bold text-success mt-0.5 uppercase tracking-wider">Validé</div>}
+      </div>
+    </div>
+  );
+  if (!open) return inner;
+  return (
+    <Link to="/quiz/$juzId" params={{ juzId: String(node.juzId) }}>
       {inner}
     </Link>
   );
