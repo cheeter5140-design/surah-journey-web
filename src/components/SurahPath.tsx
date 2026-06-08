@@ -1,6 +1,13 @@
 import { Link } from "@tanstack/react-router";
-import { Lock, Check, Star, Medal, GraduationCap } from "lucide-react";
-import { CURRICULUM, FLAT_CURRICULUM, isNodeUnlocked, type CurriculumNode } from "@/lib/curriculum";
+import { Lock, Check, Star, Medal, GraduationCap, Trophy } from "lucide-react";
+import {
+  CURRICULUM,
+  FLAT_CURRICULUM,
+  isNodeUnlocked,
+  getPassedJuz,
+  juzQuizUnlocked,
+  type CurriculumNode,
+} from "@/lib/curriculum";
 import { useProgress } from "@/lib/progress";
 import { useSurahProgress } from "@/lib/surah-progress";
 import { useMastery, badgeColor, type Badge } from "@/lib/mastery";
@@ -14,6 +21,7 @@ export function SurahPath() {
   if (!ready) return null;
 
   const masteredIds = Object.keys(mastery).map(Number);
+  const passedJuz = getPassedJuz();
 
   let flatIndex = -1;
   return (
@@ -37,10 +45,25 @@ export function SurahPath() {
             {section.nodes.map((node, i) => {
               flatIndex += 1;
               const idx = flatIndex;
-              const unlocked = isNodeUnlocked(idx, progress.completed, masteredIds);
+              const unlocked = isNodeUnlocked(idx, progress.completed, masteredIds, passedJuz);
+              const offset = [0, 60, 30, -30, -60, -30, 0][i % 7];
+
+              if (node.kind === "quiz") {
+                const quizOpen = unlocked && juzQuizUnlocked(node.juzId!, masteredIds);
+                const passed = passedJuz.includes(node.juzId!);
+                return (
+                  <div
+                    key={`${section.id}-quiz-${node.juzId}`}
+                    style={{ transform: `translateX(${offset}px)` }}
+                    className="relative animate-fade-in-up"
+                  >
+                    <QuizNode node={node} open={quizOpen} passed={passed} />
+                  </div>
+                );
+              }
+
               const completed = node.surahId != null && progress.completed.includes(node.surahId);
               const masteryEntry = node.surahId != null ? mastery[node.surahId] : undefined;
-              const offset = [0, 60, 30, -30, -60, -30, 0][i % 7];
               const sr = byNumber.get(node.quranNumber);
               const srColor = sr ? getStrengthColor(sr.memory_strength, sr.last_reviewed_at).color : null;
               const showExam = unlocked && completed && !masteryEntry && node.surahId != null;
