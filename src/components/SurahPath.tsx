@@ -190,3 +190,32 @@ function SurahNode({
     </Link>
   );
 }
+
+function QuizNode({ node, open, passed }: { node: CurriculumNode; open: boolean; passed: boolean }) {
+  const inner = (
+    <div className="flex flex-col items-center gap-2 group">
+      <div
+        className={cn(
+          "relative w-24 h-24 rounded-3xl grid place-items-center text-4xl transition-all duration-200",
+          open && !passed && "bg-gold text-primary-foreground shadow-[var(--shadow-gold)] animate-glow-pulse group-hover:scale-105 active:translate-y-1",
+          passed && "bg-[image:var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-node)]",
+          !open && "bg-muted text-muted-foreground/40 shadow-[var(--shadow-node-locked)] cursor-not-allowed"
+        )}
+      >
+        {passed ? <Trophy className="w-10 h-10" /> : open ? <GraduationCap className="w-10 h-10" /> : <Lock className="w-8 h-8" />}
+      </div>
+      <div className="text-center pt-1">
+        <div className="font-display font-bold">{node.name}</div>
+        <div className="text-xs text-muted-foreground">{node.meaning}</div>
+        {!open && <div className="text-[10px] text-muted-foreground mt-0.5">Termine toutes les sourates du Juz</div>}
+        {passed && <div className="text-[10px] font-bold text-success mt-0.5 uppercase tracking-wider">Validé</div>}
+      </div>
+    </div>
+  );
+  if (!open) return inner;
+  return (
+    <Link to="/quiz/$juzId" params={{ juzId: String(node.juzId) }}>
+      {inner}
+    </Link>
+  );
+}
