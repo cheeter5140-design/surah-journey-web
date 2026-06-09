@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Lock, Check, Star, Medal, GraduationCap, Trophy } from "lucide-react";
+import { Lock, Check, Star, Medal, GraduationCap, Trophy, Mic } from "lucide-react";
 import {
   CURRICULUM,
   FLAT_CURRICULUM,
@@ -11,6 +11,7 @@ import {
 import { useProgress } from "@/lib/progress";
 import { useSurahProgress } from "@/lib/surah-progress";
 import { useMastery, badgeColor, type Badge } from "@/lib/mastery";
+import { useMemorization } from "@/lib/memorization";
 import { getStrengthColor } from "@/lib/spaced-repetition";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +19,7 @@ export function SurahPath() {
   const { progress, ready } = useProgress();
   const { byNumber } = useSurahProgress();
   const { mastery } = useMastery();
+  const { data: memData } = useMemorization();
   if (!ready) return null;
 
   const masteredIds = Object.keys(mastery).map(Number);
@@ -81,6 +83,7 @@ export function SurahPath() {
                     srColor={srColor}
                     badge={masteryEntry?.badge}
                     mastered={!!masteryEntry}
+                    memorizedPct={node.surahId != null ? memData[node.surahId]?.pct ?? 0 : 0}
                   />
                   {showExam && (
                     <Link
@@ -90,6 +93,16 @@ export function SurahPath() {
                     >
                       <GraduationCap className="w-3.5 h-3.5" />
                       Évaluation finale
+                    </Link>
+                  )}
+                  {unlocked && completed && node.surahId != null && !showExam && (
+                    <Link
+                      to="/memorize/$surahId"
+                      params={{ surahId: String(node.surahId) }}
+                      className="absolute left-1/2 -bottom-7 -translate-x-1/2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-bold uppercase tracking-wider active:translate-y-0.5 whitespace-nowrap hover:bg-primary/20 transition"
+                    >
+                      <Mic className="w-3.5 h-3.5" />
+                      Mémoriser
                     </Link>
                   )}
                 </div>
@@ -113,6 +126,7 @@ function SurahNode({
   srColor,
   badge,
   mastered,
+  memorizedPct = 0,
 }: {
   node: CurriculumNode;
   unlocked: boolean;
@@ -121,6 +135,7 @@ function SurahNode({
   srColor: string | null;
   badge?: Badge;
   mastered: boolean;
+  memorizedPct?: number;
 }) {
   const interactive = unlocked && !node.comingSoon && node.surahId != null;
   const inner = (
@@ -179,6 +194,11 @@ function SurahNode({
         <div className="text-xs text-muted-foreground">
           n°{node.quranNumber} · {node.meaning}
         </div>
+        {memorizedPct > 0 && (
+          <div className="mt-1 inline-flex items-center gap-1 text-[10px] font-bold text-primary">
+            <Mic className="w-2.5 h-2.5" /> {memorizedPct}% mémorisé
+          </div>
+        )}
       </div>
     </div>
   );
