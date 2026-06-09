@@ -126,6 +126,7 @@ function SurahNode({
   srColor,
   badge,
   mastered,
+  memorizedPct = 0,
 }: {
   node: CurriculumNode;
   unlocked: boolean;
@@ -134,6 +135,7 @@ function SurahNode({
   srColor: string | null;
   badge?: Badge;
   mastered: boolean;
+  memorizedPct?: number;
 }) {
   const interactive = unlocked && !node.comingSoon && node.surahId != null;
   const inner = (
