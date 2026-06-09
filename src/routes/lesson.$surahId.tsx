@@ -105,7 +105,10 @@ function LessonPage() {
           <Button asChild className="w-full h-14 rounded-2xl font-bold uppercase tracking-wide shadow-[var(--shadow-gold)] bg-gold hover:bg-gold/90 text-primary-foreground active:translate-y-1 animate-glow-pulse">
             <Link to="/exam/$surahId" params={{ surahId: String(surah.id) }}>Passer l'évaluation finale</Link>
           </Button>
-          <Button asChild variant="outline" className="w-full h-12 rounded-2xl">
+          <Button asChild variant="outline" className="w-full h-12 rounded-2xl border-2 border-primary/30 text-primary hover:bg-primary/5">
+            <Link to="/memorize/$surahId" params={{ surahId: String(surah.id) }}>🎙️ Mémoriser cette sourate</Link>
+          </Button>
+          <Button asChild variant="ghost" className="w-full h-10 rounded-2xl">
             <Link to="/">Retour au parcours</Link>
           </Button>
         </div>
