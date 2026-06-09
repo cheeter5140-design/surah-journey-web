@@ -21,6 +21,7 @@ function StatsPage() {
   const { progress } = useProgress();
   const { mastery } = useMastery();
   const { rows } = useSurahProgress();
+  const { data: memData } = useMemorization();
 
   const totalCurated = FLAT_CURRICULUM.filter((n) => n.surahId != null).length;
   const completed = progress.completed.length;
