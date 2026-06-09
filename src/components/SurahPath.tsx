@@ -83,6 +83,7 @@ export function SurahPath() {
                     srColor={srColor}
                     badge={masteryEntry?.badge}
                     mastered={!!masteryEntry}
+                    memorizedPct={node.surahId != null ? memData[node.surahId]?.pct ?? 0 : 0}
                   />
                   {showExam && (
                     <Link
@@ -92,6 +93,16 @@ export function SurahPath() {
                     >
                       <GraduationCap className="w-3.5 h-3.5" />
                       Évaluation finale
+                    </Link>
+                  )}
+                  {unlocked && completed && node.surahId != null && !showExam && (
+                    <Link
+                      to="/memorize/$surahId"
+                      params={{ surahId: String(node.surahId) }}
+                      className="absolute left-1/2 -bottom-7 -translate-x-1/2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-bold uppercase tracking-wider active:translate-y-0.5 whitespace-nowrap hover:bg-primary/20 transition"
+                    >
+                      <Mic className="w-3.5 h-3.5" />
+                      Mémoriser
                     </Link>
                   )}
                 </div>
