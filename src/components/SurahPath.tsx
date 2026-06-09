@@ -194,6 +194,11 @@ function SurahNode({
         <div className="text-xs text-muted-foreground">
           n°{node.quranNumber} · {node.meaning}
         </div>
+        {memorizedPct > 0 && (
+          <div className="mt-1 inline-flex items-center gap-1 text-[10px] font-bold text-primary">
+            <Mic className="w-2.5 h-2.5" /> {memorizedPct}% mémorisé
+          </div>
+        )}
       </div>
     </div>
   );
