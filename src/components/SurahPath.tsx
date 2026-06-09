@@ -19,6 +19,7 @@ export function SurahPath() {
   const { progress, ready } = useProgress();
   const { byNumber } = useSurahProgress();
   const { mastery } = useMastery();
+  const { data: memData } = useMemorization();
   if (!ready) return null;
 
   const masteredIds = Object.keys(mastery).map(Number);
