@@ -127,9 +127,55 @@ function StatsPage() {
             </div>
           </section>
         )}
+        <MemorizationSection memData={memData} />
       </main>
       <BottomNav />
     </div>
+  );
+}
+
+function MemorizationSection({ memData }: { memData: Record<number, { pct: number; verses: number[]; updatedAt: string }> }) {
+  const entries = Object.entries(memData)
+    .map(([id, v]) => ({ id: Number(id), ...v, surah: SURAHS.find((s) => s.id === Number(id)) }))
+    .filter((e) => e.surah)
+    .sort((a, b) => b.pct - a.pct);
+  const fullCount = entries.filter((e) => e.pct >= 95).length;
+  const avg = entries.length ? Math.round(entries.reduce((a, e) => a + e.pct, 0) / entries.length) : 0;
+  return (
+    <section className="glass-panel rounded-3xl p-6">
+      <div className="flex items-center justify-between mb-1">
+        <h2 className="font-display text-xl font-bold flex items-center gap-2">
+          <Mic className="w-5 h-5 text-primary" /> Mémorisation
+        </h2>
+        <div className="text-xs text-muted-foreground">{fullCount} entièrement · {avg}% moy.</div>
+      </div>
+      <p className="text-sm text-muted-foreground">Sourates récitées au micro et leur score.</p>
+      {entries.length === 0 ? (
+        <div className="mt-4 rounded-2xl border border-dashed border-border p-6 text-center">
+          <p className="text-sm text-muted-foreground">Aucune mémorisation pour l'instant.</p>
+          <Link to="/" className="inline-block mt-2 text-sm font-bold text-primary">Commencer une sourate →</Link>
+        </div>
+      ) : (
+        <div className="mt-4 space-y-2">
+          {entries.map((e) => (
+            <Link
+              key={e.id}
+              to="/memorize/$surahId"
+              params={{ surahId: String(e.id) }}
+              className="flex items-center gap-3 p-3 rounded-xl bg-card/60 border border-border hover:border-primary/40 transition"
+            >
+              <div className="flex-1 min-w-0">
+                <div className="font-bold text-sm truncate">{e.surah!.name} <span className="font-[Amiri_Quran] text-muted-foreground ml-1">{e.surah!.nameArabic}</span></div>
+                <div className="h-1.5 bg-muted rounded-full overflow-hidden mt-1.5">
+                  <div className={cn("h-full transition-all", e.pct >= 95 ? "bg-gold" : "bg-primary")} style={{ width: `${e.pct}%` }} />
+                </div>
+              </div>
+              <div className="font-display font-bold text-lg tabular-nums shrink-0 w-12 text-right">{e.pct}%</div>
+            </Link>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
 
