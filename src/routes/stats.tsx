@@ -1,11 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
+import { Mic } from "lucide-react";
 import { TopBar } from "@/components/TopBar";
 import { BottomNav } from "@/components/BottomNav";
 import { useProgress } from "@/lib/progress";
 import { useMastery } from "@/lib/mastery";
 import { useSurahProgress } from "@/lib/surah-progress";
+import { useMemorization } from "@/lib/memorization";
 import { FLAT_CURRICULUM } from "@/lib/curriculum";
+import { SURAHS } from "@/lib/surahs";
 import { getStrengthColor } from "@/lib/spaced-repetition";
 import { cn } from "@/lib/utils";
 
