@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Lock, Check, Star, Medal, GraduationCap, Trophy } from "lucide-react";
+import { Lock, Check, Star, Medal, GraduationCap, Trophy, Mic } from "lucide-react";
 import {
   CURRICULUM,
   FLAT_CURRICULUM,
@@ -11,6 +11,7 @@ import {
 import { useProgress } from "@/lib/progress";
 import { useSurahProgress } from "@/lib/surah-progress";
 import { useMastery, badgeColor, type Badge } from "@/lib/mastery";
+import { useMemorization } from "@/lib/memorization";
 import { getStrengthColor } from "@/lib/spaced-repetition";
 import { cn } from "@/lib/utils";
 
