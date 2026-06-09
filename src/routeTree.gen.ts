@@ -19,6 +19,7 @@ import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as ChestsRouteImport } from './routes/chests'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as QuizJuzIdRouteImport } from './routes/quiz.$juzId'
+import { Route as MemorizeSurahIdRouteImport } from './routes/memorize.$surahId'
 import { Route as LessonSurahIdRouteImport } from './routes/lesson.$surahId'
 import { Route as ExamSurahIdRouteImport } from './routes/exam.$surahId'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
@@ -74,6 +75,11 @@ const QuizJuzIdRoute = QuizJuzIdRouteImport.update({
   path: '/quiz/$juzId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MemorizeSurahIdRoute = MemorizeSurahIdRouteImport.update({
+  id: '/memorize/$surahId',
+  path: '/memorize/$surahId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LessonSurahIdRoute = LessonSurahIdRouteImport.update({
   id: '/lesson/$surahId',
   path: '/lesson/$surahId',
@@ -108,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/api/chat': typeof ApiChatRoute
   '/exam/$surahId': typeof ExamSurahIdRoute
   '/lesson/$surahId': typeof LessonSurahIdRoute
+  '/memorize/$surahId': typeof MemorizeSurahIdRoute
   '/quiz/$juzId': typeof QuizJuzIdRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
 }
@@ -124,6 +131,7 @@ export interface FileRoutesByTo {
   '/api/chat': typeof ApiChatRoute
   '/exam/$surahId': typeof ExamSurahIdRoute
   '/lesson/$surahId': typeof LessonSurahIdRoute
+  '/memorize/$surahId': typeof MemorizeSurahIdRoute
   '/quiz/$juzId': typeof QuizJuzIdRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
 }
@@ -141,6 +149,7 @@ export interface FileRoutesById {
   '/api/chat': typeof ApiChatRoute
   '/exam/$surahId': typeof ExamSurahIdRoute
   '/lesson/$surahId': typeof LessonSurahIdRoute
+  '/memorize/$surahId': typeof MemorizeSurahIdRoute
   '/quiz/$juzId': typeof QuizJuzIdRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
 }
@@ -159,6 +168,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/exam/$surahId'
     | '/lesson/$surahId'
+    | '/memorize/$surahId'
     | '/quiz/$juzId'
     | '/api/public/stripe-webhook'
   fileRoutesByTo: FileRoutesByTo
@@ -175,6 +185,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/exam/$surahId'
     | '/lesson/$surahId'
+    | '/memorize/$surahId'
     | '/quiz/$juzId'
     | '/api/public/stripe-webhook'
   id:
@@ -191,6 +202,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/exam/$surahId'
     | '/lesson/$surahId'
+    | '/memorize/$surahId'
     | '/quiz/$juzId'
     | '/api/public/stripe-webhook'
   fileRoutesById: FileRoutesById
@@ -208,6 +220,7 @@ export interface RootRouteChildren {
   ApiChatRoute: typeof ApiChatRoute
   ExamSurahIdRoute: typeof ExamSurahIdRoute
   LessonSurahIdRoute: typeof LessonSurahIdRoute
+  MemorizeSurahIdRoute: typeof MemorizeSurahIdRoute
   QuizJuzIdRoute: typeof QuizJuzIdRoute
   ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
 }
@@ -284,6 +297,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QuizJuzIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/memorize/$surahId': {
+      id: '/memorize/$surahId'
+      path: '/memorize/$surahId'
+      fullPath: '/memorize/$surahId'
+      preLoaderRoute: typeof MemorizeSurahIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lesson/$surahId': {
       id: '/lesson/$surahId'
       path: '/lesson/$surahId'
@@ -328,6 +348,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiChatRoute: ApiChatRoute,
   ExamSurahIdRoute: ExamSurahIdRoute,
   LessonSurahIdRoute: LessonSurahIdRoute,
+  MemorizeSurahIdRoute: MemorizeSurahIdRoute,
   QuizJuzIdRoute: QuizJuzIdRoute,
   ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
 }
