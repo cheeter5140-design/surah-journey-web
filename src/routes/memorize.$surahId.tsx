@@ -271,20 +271,63 @@ function VerseStep({
     audioRef.current.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
   };
 
-  const start = () => {
+  const [requestingPerm, setRequestingPerm] = useState(false);
+
+  const start = async () => {
     setPermError(null);
+
+    // 1) Explicitly request microphone permission first so the browser
+    //    prompts the user, and we can surface a clear error if denied.
+    if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+      setPermError("Ton navigateur ne supporte pas l'accès au micro. Essaie Chrome.");
+      return;
+    }
+    setRequestingPerm(true);
+    let micStream: MediaStream | null = null;
+    try {
+      micStream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+      });
+    } catch (err: any) {
+      setRequestingPerm(false);
+      const name = err?.name || "";
+      if (name === "NotAllowedError" || name === "SecurityError") {
+        setPermError("Accès au micro refusé. Autorise-le dans ton navigateur puis réessaie.");
+      } else if (name === "NotFoundError" || name === "OverconstrainedError") {
+        setPermError("Aucun micro détecté sur cet appareil.");
+      } else {
+        setPermError("Impossible d'accéder au micro.");
+      }
+      return;
+    }
+    setRequestingPerm(false);
+
+    // 2) Stop the manual stream — SpeechRecognition opens its own pipeline,
+    //    but the permission grant persists for the session.
+    micStream.getTracks().forEach((t) => t.stop());
+
+    // 3) Start SpeechRecognition.
     const r = getSpeechRecognition();
     if (!r) { setPermError("Reconnaissance vocale non supportée. Essaie Chrome."); return; }
+    // Prefer ar-SA but fall back to generic Arabic so more browsers/users work.
     r.lang = "ar-SA";
     r.continuous = true;
     r.interimResults = true;
-    r.maxAlternatives = 1;
+    r.maxAlternatives = 3;
     let full = "";
     r.onresult = (e: any) => {
       let interim = "";
       for (let i = e.resultIndex; i < e.results.length; i++) {
-        const t = e.results[i][0].transcript;
-        if (e.results[i].isFinal) full += " " + t; else interim += " " + t;
+        // Pick the best-matching alternative against expected words.
+        const alts: string[] = [];
+        for (let a = 0; a < e.results[i].length; a++) alts.push(e.results[i][a].transcript);
+        let chosen = alts[0] ?? "";
+        let chosenScore = -1;
+        for (const alt of alts) {
+          const s = diffRecitation(expected, (full + " " + interim + " " + alt).trim(), false).score;
+          if (s > chosenScore) { chosenScore = s; chosen = alt; }
+        }
+        if (e.results[i].isFinal) full += " " + chosen; else interim += " " + chosen;
       }
       const combined = (full + " " + interim).trim();
       setTranscript(combined);
@@ -292,11 +335,17 @@ function VerseStep({
     };
     r.onerror = (e: any) => {
       if (e.error === "not-allowed" || e.error === "service-not-allowed") {
-        setPermError("Accès au micro refusé. Autorise-le dans ton navigateur.");
+        setPermError("Accès au micro refusé. Autorise-le dans ton navigateur puis réessaie.");
       } else if (e.error === "no-speech") {
         setPermError("Je n'ai rien entendu. Réessaie en parlant plus fort.");
+      } else if (e.error === "audio-capture") {
+        setPermError("Aucun micro détecté.");
       } else if (e.error === "language-not-supported") {
-        setPermError("L'arabe (ar-SA) n'est pas supporté par ton navigateur. Utilise Chrome.");
+        // Retry once with a generic Arabic tag
+        try { r.lang = "ar"; r.start(); setRecording(true); return; } catch { /* ignore */ }
+        setPermError("L'arabe n'est pas supporté par ton navigateur. Utilise Chrome.");
+      } else if (e.error === "network") {
+        setPermError("Erreur réseau pendant la reconnaissance. Vérifie ta connexion.");
       }
       setRecording(false);
     };
