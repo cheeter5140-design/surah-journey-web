@@ -1,18 +1,19 @@
 import { Link } from "@tanstack/react-router";
 import { Home, CalendarDays, BarChart3, Users, Crown } from "lucide-react";
-
-const items = [
-  { to: "/", label: "Parcours", icon: Home, exact: true },
-  { to: "/planner", label: "Planner", icon: CalendarDays, exact: false },
-  { to: "/stats", label: "Stats", icon: BarChart3, exact: false },
-  { to: "/leaderboard", label: "Communauté", icon: Users, exact: false },
-  { to: "/premium", label: "Premium", icon: Crown, exact: false },
-] as const;
+import { useLang } from "@/lib/preferences";
 
 export function BottomNav() {
+  const { t } = useLang();
+  const items = [
+    { to: "/", label: t("nav.path"), icon: Home, exact: true },
+    { to: "/planner", label: t("nav.planner"), icon: CalendarDays, exact: false },
+    { to: "/stats", label: t("nav.stats"), icon: BarChart3, exact: false },
+    { to: "/leaderboard", label: t("nav.community"), icon: Users, exact: false },
+    { to: "/premium", label: t("nav.premium"), icon: Crown, exact: false },
+  ] as const;
   return (
     <nav
-      aria-label="Navigation principale"
+      aria-label="Navigation"
       className="md:hidden fixed bottom-0 inset-x-0 z-40 px-3 pb-3 pt-2"
     >
       <div className="glass-panel rounded-2xl px-1.5 py-1.5 flex items-center justify-between shadow-[var(--shadow-soft)]">

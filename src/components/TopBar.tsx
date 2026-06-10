@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/lib/profile";
 import { useGame } from "@/lib/game";
 import { SettingsDrawer } from "@/components/SettingsDrawer";
+import { useLang } from "@/lib/preferences";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,14 +14,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-const tabs = [
-  { to: "/", label: "Parcours", icon: LayoutDashboard, exact: true },
-  { to: "/planner", label: "Planner", icon: Sparkles, exact: false },
-  { to: "/stats", label: "Stats", icon: BarChart3, exact: false },
-  { to: "/leaderboard", label: "Communauté", icon: Trophy, exact: false },
-  { to: "/premium", label: "Premium", icon: Crown, exact: false },
-] as const;
 
 
 export function TopBar() {
