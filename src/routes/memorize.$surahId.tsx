@@ -424,9 +424,10 @@ function VerseStep({
         <div className="flex flex-col items-center gap-3">
           <button
             onClick={recording ? stop : start}
+            disabled={requestingPerm}
             aria-label={recording ? "Arrêter" : "Commencer la récitation"}
             className={cn(
-              "relative w-20 h-20 rounded-full grid place-items-center transition-all active:scale-95",
+              "relative w-20 h-20 rounded-full grid place-items-center transition-all active:scale-95 disabled:opacity-60",
               recording
                 ? "bg-rose-500 text-white shadow-[0_0_40px_rgba(244,63,94,0.7)]"
                 : "bg-gradient-to-br from-gold to-amber-500 text-[#0A0E1A] shadow-[0_0_30px_rgba(201,168,76,0.4)]"
@@ -441,7 +442,11 @@ function VerseStep({
             {recording ? <MicOff className="w-8 h-8 relative" /> : <Mic className="w-8 h-8 relative" />}
           </button>
           <div className="text-xs text-white/60 text-center">
-            {recording ? "🎙️ J'écoute… parle clairement en arabe" : "Appuie pour réciter"}
+            {requestingPerm
+              ? "Demande d'accès au micro…"
+              : recording
+                ? "🎙️ J'écoute… parle clairement en arabe"
+                : "Appuie pour réciter"}
           </div>
 
           {recording && <Waveform />}
