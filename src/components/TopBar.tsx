@@ -21,6 +21,14 @@ export function TopBar() {
   const { user, signOut } = useAuth();
   const { profile } = useProfile();
   const { state } = useGame();
+  const { t } = useLang();
+  const tabs = [
+    { to: "/", label: t("nav.path"), icon: LayoutDashboard, exact: true },
+    { to: "/planner", label: t("nav.planner"), icon: Sparkles, exact: false },
+    { to: "/stats", label: t("nav.stats"), icon: BarChart3, exact: false },
+    { to: "/leaderboard", label: t("nav.community"), icon: Trophy, exact: false },
+    { to: "/premium", label: t("nav.premium"), icon: Crown, exact: false },
+  ] as const;
   return (
     <header className="sticky top-0 z-40 backdrop-blur-md bg-background/80 border-b border-border">
       <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
