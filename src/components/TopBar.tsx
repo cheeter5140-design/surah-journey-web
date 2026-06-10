@@ -39,7 +39,7 @@ export function TopBar() {
           <span className="font-display text-lg font-bold tracking-tight hidden sm:inline">Nour</span>
         </Link>
         <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-end">
-          <Stat icon={<Flame className="w-4 h-4 text-orange-500" fill="currentColor" />} value={progress.streak} label="j" />
+          <Stat icon={<Flame className="w-4 h-4 text-orange-500" fill="currentColor" />} value={progress.streak} label={t("stat.days")} />
           <Stat icon={<Star className="w-4 h-4 text-gold" fill="currentColor" />} value={progress.xp} label="XP" />
           <Stat icon={<Coins className="w-4 h-4 text-gold" fill="currentColor" />} value={state.coins} label="" />
           <Link
@@ -82,16 +82,16 @@ export function TopBar() {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link to="/onboarding"><UserIcon className="w-4 h-4 mr-2" /> Modifier le profil</Link>
+                  <Link to="/onboarding"><UserIcon className="w-4 h-4 mr-2" /> {t("profile.edit")}</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/planner"><Sparkles className="w-4 h-4 mr-2 text-primary" /> Smart Planner</Link>
+                  <Link to="/planner"><Sparkles className="w-4 h-4 mr-2 text-primary" /> {t("profile.planner")}</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/premium"><Crown className="w-4 h-4 mr-2 text-gold" /> Premium</Link>
+                  <Link to="/premium"><Crown className="w-4 h-4 mr-2 text-gold" /> {t("profile.premium")}</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => signOut()}>
-                  <LogOut className="w-4 h-4 mr-2" /> Se déconnecter
+                  <LogOut className="w-4 h-4 mr-2" /> {t("profile.signOut")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -100,15 +100,15 @@ export function TopBar() {
       </div>
       <nav className="max-w-5xl mx-auto px-4 pb-2">
         <div className="flex items-center gap-1 overflow-x-auto no-scrollbar -mx-1 px-1">
-          {tabs.map((t) => (
+          {tabs.map((tab) => (
             <Link
-              key={t.to}
-              to={t.to}
-              activeOptions={{ exact: t.exact }}
+              key={tab.to}
+              to={tab.to}
+              activeOptions={{ exact: tab.exact }}
               className="group shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors data-[status=active]:text-primary-foreground data-[status=active]:bg-[image:var(--gradient-primary)] data-[status=active]:shadow-[var(--shadow-soft)]"
             >
-              <t.icon className="w-4 h-4" />
-              <span className="whitespace-nowrap">{t.label}</span>
+              <tab.icon className="w-4 h-4" />
+              <span className="whitespace-nowrap">{tab.label}</span>
             </Link>
           ))}
         </div>
