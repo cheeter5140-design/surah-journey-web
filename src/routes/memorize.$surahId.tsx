@@ -321,11 +321,11 @@ function VerseStep({
       setRequestingPerm(false);
       const name = err?.name || "";
       if (name === "NotAllowedError" || name === "SecurityError") {
-        setPermError("Accès au micro refusé. Autorise-le dans ton navigateur puis réessaie.");
+        setPermError(t("mem.permDenied"));
       } else if (name === "NotFoundError" || name === "OverconstrainedError") {
-        setPermError("Aucun micro détecté sur cet appareil.");
+        setPermError(t("mem.permNoMic"));
       } else {
-        setPermError("Impossible d'accéder au micro.");
+        setPermError(t("mem.permGeneric"));
       }
       return;
     }
@@ -369,21 +369,27 @@ function VerseStep({
         setPermError("Erreur réseau pendant la reconnaissance. Vérifie ta connexion.");
       }
       setRecording(false);
+      stopAudioResources();
     };
     r.onend = () => {
       console.info("[Surah Journey] SpeechRecognition ended", { manual: manualStopRef.current, transcript: finalTranscriptRef.current });
       setRecording(false);
       stopAudioResources();
+      if (!finalTranscriptRef.current) {
+        setDiff(null);
+        if (manualStopRef.current) setPermError(t("mem.noSpeech"));
+        return;
+      }
       const final = diffRecitation(expected, finalTranscriptRef.current, true);
       setDiff(final);
-      if (!finalTranscriptRef.current && manualStopRef.current) setPermError(t("mem.noSpeech"));
     };
     try {
       r.start();
       setRecording(true);
       recogRef.current = r;
     } catch {
-      setPermError("Impossible de démarrer le micro.");
+      setPermError(t("mem.permGeneric"));
+      stopAudioResources();
     }
   };
 
@@ -412,7 +418,7 @@ function VerseStep({
             playing && "animate-pulse"
           )}
         >
-          <Volume2 className="w-4 h-4" /> Écouter
+          <Volume2 className="w-4 h-4" /> {t("mem.listen")}
         </button>
       </div>
 
@@ -421,8 +427,8 @@ function VerseStep({
         {!revealed ? (
           <div className="flex flex-col items-center justify-center gap-3 py-8 text-white/40">
             <EyeOff className="w-8 h-8" />
-            <p className="text-sm">Le texte est caché. Récite de mémoire.</p>
-            <button onClick={() => setRevealed(true)} className="text-xs text-gold underline">Afficher quand même</button>
+            <p className="text-sm">{t("mem.hidden")}</p>
+            <button onClick={() => setRevealed(true)} className="text-xs text-gold underline">{t("mem.showAnyway")}</button>
           </div>
         ) : (
           <div dir="rtl" className="font-[Amiri_Quran] text-3xl sm:text-4xl leading-loose text-right break-words">
@@ -450,7 +456,7 @@ function VerseStep({
           <button
             onClick={recording ? stop : handleStartClick}
             disabled={requestingPerm}
-            aria-label={recording ? "Arrêter" : "Commencer la récitation"}
+            aria-label={recording ? t("lesson.listen.stop") : t("mem.tapToRecite")}
             className={cn(
               "relative w-20 h-20 rounded-full grid place-items-center transition-all active:scale-95 disabled:opacity-60",
               recording
@@ -468,10 +474,10 @@ function VerseStep({
           </button>
           <div className="text-xs text-white/60 text-center">
             {requestingPerm
-              ? "Demande d'accès au micro…"
+              ? t("mem.requesting")
               : recording
-                ? "🎙️ J'écoute… parle clairement en arabe"
-                : "Appuie pour réciter"}
+                ? t("mem.listening")
+                : t("mem.tapToRecite")}
           </div>
 
           {recording && <Waveform />}
@@ -489,7 +495,7 @@ function VerseStep({
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 flex flex-col gap-3 animate-fade-in">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-xs uppercase tracking-wider text-white/50">Score</div>
+              <div className="text-xs uppercase tracking-wider text-white/50">{t("mem.score")}</div>
               <div className="font-display text-3xl font-bold">
                 {diff.score}<span className="text-white/40 text-xl">%</span>
               </div>
@@ -497,7 +503,7 @@ function VerseStep({
             <FeedbackBadge score={diff.score} />
           </div>
           <div className="text-xs text-white/50">
-            {diff.correctCount}/{diff.totalCount} mots corrects
+            {t("mem.wordsCorrect", { c: diff.correctCount, t: diff.totalCount })}
           </div>
         </div>
       )}
@@ -511,14 +517,14 @@ function VerseStep({
               className="flex-1 h-12 rounded-2xl border-white/20 bg-transparent text-white hover:bg-white/10 hover:text-white"
               disabled={recording}
             >
-              <RotateCcw className="w-4 h-4 mr-2" /> Recommencer
+              <RotateCcw className="w-4 h-4 mr-2" /> {t("mem.restart")}
             </Button>
             <Button
               onClick={submit}
               disabled={!diff || recording}
               className="flex-1 h-12 rounded-2xl bg-gold text-[#0A0E1A] hover:bg-gold/90 font-bold disabled:opacity-40"
             >
-              {isFullSurah ? "Terminer" : "Verset suivant"}
+              {isFullSurah ? t("mem.finish") : t("mem.next")}
             </Button>
           </>
         ) : (
@@ -526,7 +532,7 @@ function VerseStep({
             onClick={() => onDone(100)}
             className="flex-1 h-12 rounded-2xl bg-gold text-[#0A0E1A] hover:bg-gold/90 font-bold"
           >
-            {isFullSurah ? "Terminer" : "Verset suivant"}
+            {isFullSurah ? t("mem.finish") : t("mem.next")}
           </Button>
         )}
       </div>
