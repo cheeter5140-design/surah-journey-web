@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Mic, MicOff, Volume2, Eye, EyeOff, Sparkles, Trophy, RotateCcw, Chrome, AlertTriangle } from "lucide-react";
-import { SURAHS, ayahAudioUrl } from "@/lib/surahs";
+import { ayahAudioUrl, type Surah } from "@/lib/surahs";
+import { useLocalizedSurah } from "@/lib/surah-localization";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -15,6 +16,7 @@ import {
   type DiffResult,
 } from "@/lib/memorization";
 import { useGame } from "@/lib/game";
+import { useLang } from "@/lib/preferences";
 
 export const Route = createFileRoute("/memorize/$surahId")({
   head: () => ({ meta: [{ title: "Mémorisation — Nour" }] }),
@@ -23,23 +25,28 @@ export const Route = createFileRoute("/memorize/$surahId")({
 
 type Mode = "ecoute" | "repete" | "recite" | "maitrise";
 
-const MODES: { id: Mode; label: string; desc: string; icon: any }[] = [
-  { id: "ecoute", label: "Écoute", desc: "Écoute la récitation correcte.", icon: Volume2 },
-  { id: "repete", label: "Répète", desc: "Répète après chaque verset, le micro te corrige.", icon: Mic },
-  { id: "recite", label: "Récite", desc: "Texte caché, récite de mémoire.", icon: EyeOff },
-  { id: "maitrise", label: "Maîtrise", desc: "Sourate entière de mémoire, sans texte.", icon: Trophy },
+const MODES: { id: Mode; labelKey: string; descKey: string; icon: any }[] = [
+  { id: "ecoute", labelKey: "mem.mode.ecoute", descKey: "mem.mode.ecoute.desc", icon: Volume2 },
+  { id: "repete", labelKey: "mem.mode.repete", descKey: "mem.mode.repete.desc", icon: Mic },
+  { id: "recite", labelKey: "mem.mode.recite", descKey: "mem.mode.recite.desc", icon: EyeOff },
+  { id: "maitrise", labelKey: "mem.mode.maitrise", descKey: "mem.mode.maitrise.desc", icon: Trophy },
 ];
+
+const MIC_AUDIO_CONSTRAINTS: MediaStreamConstraints = {
+  audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+};
 
 function MemorizePage() {
   const { surahId } = Route.useParams();
   const navigate = useNavigate();
-  const surah = SURAHS.find((s) => s.id === Number(surahId));
+  const surah = useLocalizedSurah(Number(surahId));
   const [mode, setMode] = useState<Mode | null>(null);
+  const { t } = useLang();
 
   if (!surah) {
     return (
       <div className="min-h-screen grid place-items-center bg-[#0A0E1A] text-white">
-        <Link to="/" className="text-gold underline">Retour</Link>
+        <Link to="/" className="text-gold underline">{t("mem.back")}</Link>
       </div>
     );
   }
@@ -51,12 +58,12 @@ function MemorizePage() {
           <button
             onClick={() => (mode ? setMode(null) : navigate({ to: "/" }))}
             className="w-10 h-10 rounded-full grid place-items-center bg-white/5 hover:bg-white/10 transition active:scale-95"
-            aria-label="Retour"
+            aria-label={t("mem.back")}
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex-1 min-w-0">
-            <div className="text-[10px] uppercase tracking-[0.2em] text-gold/80">Mémorisation</div>
+            <div className="text-[10px] uppercase tracking-[0.2em] text-gold/80">{t("mem.title")}</div>
             <div className="font-display text-lg font-bold truncate">
               {surah.name} <span className="font-[Amiri_Quran] text-gold ml-1">{surah.nameArabic}</span>
             </div>
