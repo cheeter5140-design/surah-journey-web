@@ -163,6 +163,20 @@ function readLang(): Lang {
   return (localStorage.getItem(LANG_KEY) as Lang) || "fr";
 }
 
+function subscribeLang(callback: () => void) {
+  if (typeof window === "undefined") return () => {};
+  window.addEventListener(LANG_EVENT, callback);
+  window.addEventListener("storage", callback);
+  return () => {
+    window.removeEventListener(LANG_EVENT, callback);
+    window.removeEventListener("storage", callback);
+  };
+}
+
+export function getCurrentLang(): Lang {
+  return readLang();
+}
+
 export function translate(lang: Lang, key: string, vars?: Record<string, string | number>): string {
   let str = DICT[lang]?.[key] ?? DICT.fr[key] ?? key;
   if (vars) for (const k in vars) str = str.replace(new RegExp(`\\{${k}\\}`, "g"), String(vars[k]));
@@ -170,29 +184,15 @@ export function translate(lang: Lang, key: string, vars?: Record<string, string 
 }
 
 export function useLang() {
-  const [lang, setLangState] = useState<Lang>(() => readLang());
+  const lang = useSyncExternalStore(subscribeLang, readLang, () => "fr" as Lang);
   useEffect(() => {
-    const saved = readLang();
-    setLangState(saved);
-    if (typeof document !== "undefined") document.documentElement.setAttribute("lang", saved);
-    const on = () => {
-      const next = readLang();
-      setLangState(next);
-      if (typeof document !== "undefined") document.documentElement.setAttribute("lang", next);
-    };
-    window.addEventListener(LANG_EVENT, on);
-    window.addEventListener("storage", on);
-    return () => {
-      window.removeEventListener(LANG_EVENT, on);
-      window.removeEventListener("storage", on);
-    };
-  }, []);
+    if (typeof document !== "undefined") document.documentElement.setAttribute("lang", lang);
+  }, [lang]);
   const setLang = (l: Lang) => {
     if (typeof window !== "undefined") {
       localStorage.setItem(LANG_KEY, l);
       window.dispatchEvent(new Event(LANG_EVENT));
     }
-    setLangState(l);
     if (typeof document !== "undefined") document.documentElement.setAttribute("lang", l);
   };
   const t = (k: string, vars?: Record<string, string | number>) => translate(lang, k, vars);
