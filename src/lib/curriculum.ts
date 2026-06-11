@@ -1,4 +1,6 @@
 import { SURAHS } from "./surahs";
+import { getLocalizedSurahMeta } from "./surah-localization";
+import type { Lang } from "./preferences";
 
 export type NodeKind = "surah" | "quiz";
 
@@ -134,6 +136,35 @@ export const CURRICULUM: Section[] = [
     ],
   },
 ];
+
+const SECTION_DESCRIPTIONS_EN: Record<number, string> = {
+  30: "The Opening of the Book, then the protective Surahs, descending toward An-Naba.",
+  29: "From the Sovereignty (Al-Mulk) to the Emissaries (Al-Mursalat).",
+  28: "From Al-Mujadila to At-Tahrim — coming soon.",
+};
+
+export function getLocalizedCurriculum(lang: Lang): Section[] {
+  if (lang !== "en") return CURRICULUM;
+  return CURRICULUM.map((section) => ({
+    ...section,
+    description: SECTION_DESCRIPTIONS_EN[section.id] ?? section.description,
+    nodes: section.nodes.map((node) => {
+      if (node.kind === "quiz") {
+        return {
+          ...node,
+          name: `Final test · Juz ${node.juzId}`,
+          meaning: "5 questions to validate this Juz",
+        };
+      }
+      const meta = getLocalizedSurahMeta(node.quranNumber, lang);
+      return {
+        ...node,
+        name: meta.name ?? node.name,
+        meaning: meta.meaning ?? node.meaning,
+      };
+    }),
+  }));
+}
 
 // Flat list (in unlock order) — useful for index lookups
 export const FLAT_CURRICULUM: CurriculumNode[] = CURRICULUM.flatMap((s) => s.nodes);
