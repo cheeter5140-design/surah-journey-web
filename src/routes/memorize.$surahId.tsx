@@ -468,7 +468,7 @@ function VerseStep({
           <button
             onClick={recording ? stop : handleStartClick}
             disabled={requestingPerm}
-            aria-label={recording ? t("lesson.listen.stop") : t("mem.tapToRecite")}
+            aria-label={recording ? t("common.stop") : t("mem.tapToRecite")}
             className={cn(
               "relative w-20 h-20 rounded-full grid place-items-center transition-all active:scale-95 disabled:opacity-60",
               recording
