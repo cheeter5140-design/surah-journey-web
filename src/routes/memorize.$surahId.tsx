@@ -84,22 +84,23 @@ function MemorizePage() {
 
 function ModePicker({ onPick }: { onPick: (m: Mode) => void }) {
   const supported = isSpeechRecognitionSupported();
+  const { t } = useLang();
   return (
     <div className="flex flex-col gap-6 animate-fade-in">
       <div className="text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs font-bold uppercase tracking-wider">
-          <Sparkles className="w-3.5 h-3.5" /> Choisis ton mode
+          <Sparkles className="w-3.5 h-3.5" /> {t("mem.choose")}
         </div>
-        <h1 className="font-display text-3xl font-bold mt-3">Comment veux-tu apprendre ?</h1>
-        <p className="text-white/60 text-sm mt-1">Le micro analyse ta récitation en arabe et t'aide à corriger chaque mot.</p>
+        <h1 className="font-display text-3xl font-bold mt-3">{t("mem.howLearn")}</h1>
+        <p className="text-white/60 text-sm mt-1">{t("mem.intro")}</p>
       </div>
 
       {!supported && (
         <div className="rounded-2xl border border-amber-400/30 bg-amber-400/5 p-4 flex gap-3 text-sm">
           <Chrome className="w-5 h-5 text-amber-300 shrink-0 mt-0.5" />
           <div>
-            <div className="font-bold text-amber-200">Reconnaissance vocale non disponible</div>
-            <p className="text-amber-100/70 mt-1">Pour la correction vocale, utilise <strong>Google Chrome</strong> sur ordinateur ou Android. Tu peux toujours utiliser le mode Écoute.</p>
+            <div className="font-bold text-amber-200">{t("mem.notSupported")}</div>
+            <p className="text-amber-100/70 mt-1">{t("mem.notSupportedHint")}</p>
           </div>
         </div>
       )}
@@ -126,8 +127,8 @@ function ModePicker({ onPick }: { onPick: (m: Mode) => void }) {
                   <m.icon className="w-5 h-5" />
                 </div>
                 <div className="flex-1">
-                  <div className="font-display text-xl font-bold">{m.label}</div>
-                  <div className="text-sm text-white/60 mt-0.5">{m.desc}</div>
+                  <div className="font-display text-xl font-bold">{t(m.labelKey)}</div>
+                  <div className="text-sm text-white/60 mt-0.5">{t(m.descKey)}</div>
                 </div>
               </div>
             </button>
@@ -140,12 +141,13 @@ function ModePicker({ onPick }: { onPick: (m: Mode) => void }) {
 
 // ---------- Session ----------
 
-function MemorizeSession({ surah, mode, onExit }: { surah: typeof SURAHS[number]; mode: Mode; onExit: () => void }) {
+function MemorizeSession({ surah, mode, onExit }: { surah: Surah; mode: Mode; onExit: () => void }) {
   const total = surah.ayahs.length;
   const [idx, setIdx] = useState(0);
   const [sessionScores, setSessionScores] = useState<number[]>([]);
   const [done, setDone] = useState(false);
   const { addCoins, trackLesson } = useGame();
+  const { t } = useLang();
 
   const isMaitrise = mode === "maitrise";
   const showText = mode === "ecoute" || mode === "repete";
@@ -186,16 +188,16 @@ function MemorizeSession({ surah, mode, onExit }: { surah: typeof SURAHS[number]
           </div>
         </div>
         <div>
-          <div className="text-xs uppercase tracking-[0.2em] text-gold">{MODES.find((m) => m.id === mode)?.label}</div>
+          <div className="text-xs uppercase tracking-[0.2em] text-gold">{t(MODES.find((m) => m.id === mode)?.labelKey ?? "mem.title")}</div>
           <h2 className="font-display text-4xl font-bold mt-1">{avg}%</h2>
           <p className="text-white/70 mt-2">{fb.label}</p>
         </div>
         <div className="flex flex-col gap-2 w-full max-w-xs">
           <Button onClick={() => { setIdx(0); setSessionScores([]); setDone(false); }} className="h-12 rounded-2xl bg-gold text-[#0A0E1A] hover:bg-gold/90 font-bold">
-            <RotateCcw className="w-4 h-4 mr-2" /> Recommencer
+            <RotateCcw className="w-4 h-4 mr-2" /> {t("mem.restart")}
           </Button>
           <Button onClick={onExit} variant="outline" className="h-12 rounded-2xl border-white/20 bg-transparent text-white hover:bg-white/10 hover:text-white">
-            Autre mode
+            {t("mem.otherMode")}
           </Button>
         </div>
       </div>
