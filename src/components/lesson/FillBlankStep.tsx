@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { Ayah } from "@/lib/surahs";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useLang } from "@/lib/preferences";
 import { Check, X } from "lucide-react";
 
 interface Props {
@@ -19,6 +20,7 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 export function FillBlankStep({ ayah, onContinue }: Props) {
+  const { t } = useLang();
   // Pick a "blank" word — middle word
   const blankIdx = useMemo(() => Math.floor(ayah.words.length / 2), [ayah]);
   const correctWord = ayah.words[blankIdx].ar;
@@ -44,8 +46,8 @@ export function FillBlankStep({ ayah, onContinue }: Props) {
   return (
     <div className="flex flex-col gap-6 animate-[bounce-in_0.5s]">
       <div>
-        <h2 className="font-display text-2xl font-bold">Complète le verset</h2>
-        <p className="text-muted-foreground text-sm mt-1">Choisis le mot manquant.</p>
+        <h2 className="font-display text-2xl font-bold">{t("lesson.blank.title")}</h2>
+        <p className="text-muted-foreground text-sm mt-1">{t("lesson.blank.subtitle")}</p>
       </div>
 
       <div className="bg-card rounded-3xl p-6 border-2 border-border shadow-[var(--shadow-soft)]">
@@ -111,7 +113,7 @@ export function FillBlankStep({ ayah, onContinue }: Props) {
           checked && !correct && "bg-destructive hover:bg-destructive/90"
         )}
       >
-        {!checked ? "Vérifier" : "Continuer"}
+        {!checked ? t("common.check") : t("common.continue")}
       </Button>
     </div>
   );
