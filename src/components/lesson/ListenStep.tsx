@@ -45,7 +45,7 @@ export function ListenStep({ surah, ayah, ayahIndex, onContinue }: Props) {
         <button
           onClick={play}
           className="w-20 h-20 rounded-full bg-[image:var(--gradient-primary)] text-primary-foreground grid place-items-center shadow-[var(--shadow-node)] active:translate-y-1 transition-transform"
-          aria-label="Écouter"
+          aria-label={t("mem.listen")}
         >
           <Volume2 className={`w-8 h-8 ${playing ? "animate-pulse" : ""}`} />
         </button>

@@ -3,9 +3,11 @@ import { useMemo, useState } from "react";
 import { ArrowLeft, Check, X, Trophy, GraduationCap, Lock } from "lucide-react";
 import { TopBar } from "@/components/TopBar";
 import { Button } from "@/components/ui/button";
-import { CURRICULUM, curatedSurahIdsInJuz, juzQuizUnlocked, markJuzPassed } from "@/lib/curriculum";
-import { SURAHS } from "@/lib/surahs";
+import { curatedSurahIdsInJuz, getLocalizedCurriculum, juzQuizUnlocked, markJuzPassed } from "@/lib/curriculum";
+import { useLocalizedSurahs } from "@/lib/surah-localization";
+import type { Surah } from "@/lib/surahs";
 import { useMastery } from "@/lib/mastery";
+import { useLang } from "@/lib/preferences";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -18,9 +20,9 @@ export const Route = createFileRoute("/quiz/$juzId")({
 
 type Q = { prompt: string; choices: string[]; answer: number; cite?: string };
 
-function buildQuestions(juzId: number): Q[] {
+function buildQuestions(juzId: number, localizedSurahs: Surah[]): Q[] {
   const ids = curatedSurahIdsInJuz(juzId);
-  const surahs = SURAHS.filter((s) => ids.includes(s.id));
+  const surahs = localizedSurahs.filter((s) => ids.includes(s.id));
   const pool = surahs.slice();
   const qs: Q[] = [];
 
@@ -102,11 +104,13 @@ function QuizPage() {
   const juzNum = Number(juzId);
   const navigate = useNavigate();
   const { mastery } = useMastery();
+  const { lang } = useLang();
+  const localizedSurahs = useLocalizedSurahs();
   const masteredIds = Object.keys(mastery).map(Number);
   const unlocked = juzQuizUnlocked(juzNum, masteredIds);
-  const section = CURRICULUM.find((s) => s.id === juzNum);
+  const section = getLocalizedCurriculum(lang).find((s) => s.id === juzNum);
 
-  const questions = useMemo(() => (unlocked ? buildQuestions(juzNum) : []), [juzNum, unlocked]);
+  const questions = useMemo(() => (unlocked ? buildQuestions(juzNum, localizedSurahs) : []), [juzNum, localizedSurahs, unlocked]);
   const [idx, setIdx] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
   const [score, setScore] = useState(0);
