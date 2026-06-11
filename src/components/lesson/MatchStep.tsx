@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { Ayah } from "@/lib/surahs";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useLang } from "@/lib/preferences";
 import { Check, X } from "lucide-react";
 
 interface Props {
@@ -19,6 +20,7 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 export function MatchStep({ ayah, onContinue }: Props) {
+  const { t } = useLang();
   const arabic = useMemo(() => ayah.words.map((w, i) => ({ ...w, id: i })), [ayah]);
   const french = useMemo(() => shuffle(arabic), [arabic]);
 
@@ -67,8 +69,8 @@ export function MatchStep({ ayah, onContinue }: Props) {
   return (
     <div className="flex flex-col gap-6 animate-[bounce-in_0.5s]">
       <div>
-        <h2 className="font-display text-2xl font-bold">Associe les mots</h2>
-        <p className="text-muted-foreground text-sm mt-1">Touche un mot arabe puis sa traduction française.</p>
+        <h2 className="font-display text-2xl font-bold">{t("lesson.match.title")}</h2>
+        <p className="text-muted-foreground text-sm mt-1">{t("lesson.match.subtitle")}</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -130,7 +132,7 @@ export function MatchStep({ ayah, onContinue }: Props) {
         disabled={!allMatched}
         className="h-14 rounded-2xl text-base font-bold uppercase tracking-wide shadow-[var(--shadow-node)] active:translate-y-1"
       >
-        {checked === null ? "Vérifier" : "Continuer"}
+        {checked === null ? t("common.check") : t("common.continue")}
       </Button>
     </div>
   );

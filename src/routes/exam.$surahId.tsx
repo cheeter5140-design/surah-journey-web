@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { X, Trophy, Medal, Award, Timer, Mic } from "lucide-react";
-import { SURAHS } from "@/lib/surahs";
+import { useLocalizedSurah } from "@/lib/surah-localization";
 import { FillBlankStep } from "@/components/lesson/FillBlankStep";
 import { Button } from "@/components/ui/button";
 import { useMastery, badgeFromMistakes, type Badge } from "@/lib/mastery";
@@ -21,7 +21,7 @@ type Phase = "intro" | "blanks" | "recite" | "self-assess" | "result";
 function ExamPage() {
   const { surahId } = Route.useParams();
   const navigate = useNavigate();
-  const surah = SURAHS.find((s) => s.id === Number(surahId));
+  const surah = useLocalizedSurah(Number(surahId));
   const { setMastery } = useMastery();
   const { completeSurah } = useProgress();
   const { addCoins } = useGame();

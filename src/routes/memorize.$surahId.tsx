@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Mic, MicOff, Volume2, Eye, EyeOff, Sparkles, Trophy, RotateCcw, Chrome, AlertTriangle } from "lucide-react";
-import { SURAHS, ayahAudioUrl } from "@/lib/surahs";
+import { ayahAudioUrl, type Surah } from "@/lib/surahs";
+import { useLocalizedSurah } from "@/lib/surah-localization";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -15,6 +16,7 @@ import {
   type DiffResult,
 } from "@/lib/memorization";
 import { useGame } from "@/lib/game";
+import { useLang } from "@/lib/preferences";
 
 export const Route = createFileRoute("/memorize/$surahId")({
   head: () => ({ meta: [{ title: "Mémorisation — Nour" }] }),
@@ -23,23 +25,28 @@ export const Route = createFileRoute("/memorize/$surahId")({
 
 type Mode = "ecoute" | "repete" | "recite" | "maitrise";
 
-const MODES: { id: Mode; label: string; desc: string; icon: any }[] = [
-  { id: "ecoute", label: "Écoute", desc: "Écoute la récitation correcte.", icon: Volume2 },
-  { id: "repete", label: "Répète", desc: "Répète après chaque verset, le micro te corrige.", icon: Mic },
-  { id: "recite", label: "Récite", desc: "Texte caché, récite de mémoire.", icon: EyeOff },
-  { id: "maitrise", label: "Maîtrise", desc: "Sourate entière de mémoire, sans texte.", icon: Trophy },
+const MODES: { id: Mode; labelKey: string; descKey: string; icon: any }[] = [
+  { id: "ecoute", labelKey: "mem.mode.ecoute", descKey: "mem.mode.ecoute.desc", icon: Volume2 },
+  { id: "repete", labelKey: "mem.mode.repete", descKey: "mem.mode.repete.desc", icon: Mic },
+  { id: "recite", labelKey: "mem.mode.recite", descKey: "mem.mode.recite.desc", icon: EyeOff },
+  { id: "maitrise", labelKey: "mem.mode.maitrise", descKey: "mem.mode.maitrise.desc", icon: Trophy },
 ];
+
+const MIC_AUDIO_CONSTRAINTS: MediaStreamConstraints = {
+  audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+};
 
 function MemorizePage() {
   const { surahId } = Route.useParams();
   const navigate = useNavigate();
-  const surah = SURAHS.find((s) => s.id === Number(surahId));
+  const surah = useLocalizedSurah(Number(surahId));
   const [mode, setMode] = useState<Mode | null>(null);
+  const { t } = useLang();
 
   if (!surah) {
     return (
       <div className="min-h-screen grid place-items-center bg-[#0A0E1A] text-white">
-        <Link to="/" className="text-gold underline">Retour</Link>
+        <Link to="/" className="text-gold underline">{t("mem.back")}</Link>
       </div>
     );
   }
@@ -51,12 +58,12 @@ function MemorizePage() {
           <button
             onClick={() => (mode ? setMode(null) : navigate({ to: "/" }))}
             className="w-10 h-10 rounded-full grid place-items-center bg-white/5 hover:bg-white/10 transition active:scale-95"
-            aria-label="Retour"
+            aria-label={t("mem.back")}
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex-1 min-w-0">
-            <div className="text-[10px] uppercase tracking-[0.2em] text-gold/80">Mémorisation</div>
+            <div className="text-[10px] uppercase tracking-[0.2em] text-gold/80">{t("mem.title")}</div>
             <div className="font-display text-lg font-bold truncate">
               {surah.name} <span className="font-[Amiri_Quran] text-gold ml-1">{surah.nameArabic}</span>
             </div>
@@ -77,22 +84,23 @@ function MemorizePage() {
 
 function ModePicker({ onPick }: { onPick: (m: Mode) => void }) {
   const supported = isSpeechRecognitionSupported();
+  const { t } = useLang();
   return (
     <div className="flex flex-col gap-6 animate-fade-in">
       <div className="text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs font-bold uppercase tracking-wider">
-          <Sparkles className="w-3.5 h-3.5" /> Choisis ton mode
+          <Sparkles className="w-3.5 h-3.5" /> {t("mem.choose")}
         </div>
-        <h1 className="font-display text-3xl font-bold mt-3">Comment veux-tu apprendre ?</h1>
-        <p className="text-white/60 text-sm mt-1">Le micro analyse ta récitation en arabe et t'aide à corriger chaque mot.</p>
+        <h1 className="font-display text-3xl font-bold mt-3">{t("mem.howLearn")}</h1>
+        <p className="text-white/60 text-sm mt-1">{t("mem.intro")}</p>
       </div>
 
       {!supported && (
         <div className="rounded-2xl border border-amber-400/30 bg-amber-400/5 p-4 flex gap-3 text-sm">
           <Chrome className="w-5 h-5 text-amber-300 shrink-0 mt-0.5" />
           <div>
-            <div className="font-bold text-amber-200">Reconnaissance vocale non disponible</div>
-            <p className="text-amber-100/70 mt-1">Pour la correction vocale, utilise <strong>Google Chrome</strong> sur ordinateur ou Android. Tu peux toujours utiliser le mode Écoute.</p>
+            <div className="font-bold text-amber-200">{t("mem.notSupported")}</div>
+            <p className="text-amber-100/70 mt-1">{t("mem.notSupportedHint")}</p>
           </div>
         </div>
       )}
@@ -119,8 +127,8 @@ function ModePicker({ onPick }: { onPick: (m: Mode) => void }) {
                   <m.icon className="w-5 h-5" />
                 </div>
                 <div className="flex-1">
-                  <div className="font-display text-xl font-bold">{m.label}</div>
-                  <div className="text-sm text-white/60 mt-0.5">{m.desc}</div>
+                  <div className="font-display text-xl font-bold">{t(m.labelKey)}</div>
+                  <div className="text-sm text-white/60 mt-0.5">{t(m.descKey)}</div>
                 </div>
               </div>
             </button>
@@ -133,12 +141,13 @@ function ModePicker({ onPick }: { onPick: (m: Mode) => void }) {
 
 // ---------- Session ----------
 
-function MemorizeSession({ surah, mode, onExit }: { surah: typeof SURAHS[number]; mode: Mode; onExit: () => void }) {
+function MemorizeSession({ surah, mode, onExit }: { surah: Surah; mode: Mode; onExit: () => void }) {
   const total = surah.ayahs.length;
   const [idx, setIdx] = useState(0);
   const [sessionScores, setSessionScores] = useState<number[]>([]);
   const [done, setDone] = useState(false);
   const { addCoins, trackLesson } = useGame();
+  const { t } = useLang();
 
   const isMaitrise = mode === "maitrise";
   const showText = mode === "ecoute" || mode === "repete";
@@ -179,16 +188,16 @@ function MemorizeSession({ surah, mode, onExit }: { surah: typeof SURAHS[number]
           </div>
         </div>
         <div>
-          <div className="text-xs uppercase tracking-[0.2em] text-gold">{MODES.find((m) => m.id === mode)?.label}</div>
+          <div className="text-xs uppercase tracking-[0.2em] text-gold">{t(MODES.find((m) => m.id === mode)?.labelKey ?? "mem.title")}</div>
           <h2 className="font-display text-4xl font-bold mt-1">{avg}%</h2>
           <p className="text-white/70 mt-2">{fb.label}</p>
         </div>
         <div className="flex flex-col gap-2 w-full max-w-xs">
           <Button onClick={() => { setIdx(0); setSessionScores([]); setDone(false); }} className="h-12 rounded-2xl bg-gold text-[#0A0E1A] hover:bg-gold/90 font-bold">
-            <RotateCcw className="w-4 h-4 mr-2" /> Recommencer
+            <RotateCcw className="w-4 h-4 mr-2" /> {t("mem.restart")}
           </Button>
           <Button onClick={onExit} variant="outline" className="h-12 rounded-2xl border-white/20 bg-transparent text-white hover:bg-white/10 hover:text-white">
-            Autre mode
+            {t("mem.otherMode")}
           </Button>
         </div>
       </div>
@@ -201,7 +210,7 @@ function MemorizeSession({ surah, mode, onExit }: { surah: typeof SURAHS[number]
     <div className="flex flex-col gap-5">
       <div>
         <div className="flex items-center justify-between text-xs text-white/60 mb-2">
-          <span>{isMaitrise ? "Récitation complète" : `Verset ${idx + 1} / ${total}`}</span>
+          <span>{isMaitrise ? t("mem.fullRecitation") : t("mem.verseOf", { n: idx + 1, t: total })}</span>
           <span className="font-bold tabular-nums">{Math.round(progressPct)}%</span>
         </div>
         <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
@@ -253,6 +262,12 @@ function VerseStep({
   const [playing, setPlaying] = useState(false);
   const recogRef = useRef<any>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const micStreamRef = useRef<MediaStream | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const finalTranscriptRef = useRef("");
+  const manualStopRef = useRef(false);
+  const listeningRef = useRef(false);
+  const { t } = useLang();
 
   useEffect(() => { setRevealed(showText); setDiff(null); setTranscript(""); }, [ayahIndex, showText]);
 
@@ -273,85 +288,110 @@ function VerseStep({
 
   const [requestingPerm, setRequestingPerm] = useState(false);
 
-  const start = async () => {
-    setPermError(null);
+  useEffect(() => () => stopAudioResources(), []);
 
-    // 1) Explicitly request microphone permission first so the browser
-    //    prompts the user, and we can surface a clear error if denied.
-    if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
-      setPermError("Ton navigateur ne supporte pas l'accès au micro. Essaie Chrome.");
-      return;
-    }
+  const stopAudioResources = () => {
+    micStreamRef.current?.getTracks().forEach((track) => track.stop());
+    micStreamRef.current = null;
+  };
+
+  const ensureAudioContextReady = async () => {
+    const AudioContextCtor = (window as any).AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextCtor) return;
+    const context = audioContextRef.current ?? new AudioContextCtor();
+    audioContextRef.current = context;
+    if (context.state === "suspended") await context.resume();
+  };
+
+  const handleStartClick = () => {
+    const permissionPromise = navigator.mediaDevices.getUserMedia(MIC_AUDIO_CONSTRAINTS);
+    void start(permissionPromise);
+  };
+
+  const start = async (permissionPromise: Promise<MediaStream>) => {
     setRequestingPerm(true);
-    let micStream: MediaStream | null = null;
+    setPermError(null);
+    setDiff(null);
+    setTranscript("");
+    finalTranscriptRef.current = "";
+    manualStopRef.current = false;
+    listeningRef.current = true;
     try {
-      micStream = await navigator.mediaDevices.getUserMedia({
-        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
-      });
+      micStreamRef.current = await permissionPromise;
+      await ensureAudioContextReady();
     } catch (err: any) {
       setRequestingPerm(false);
       const name = err?.name || "";
       if (name === "NotAllowedError" || name === "SecurityError") {
-        setPermError("Accès au micro refusé. Autorise-le dans ton navigateur puis réessaie.");
+        setPermError(t("mem.permDenied"));
       } else if (name === "NotFoundError" || name === "OverconstrainedError") {
-        setPermError("Aucun micro détecté sur cet appareil.");
+        setPermError(t("mem.permNoMic"));
       } else {
-        setPermError("Impossible d'accéder au micro.");
+        setPermError(t("mem.permGeneric"));
       }
       return;
     }
     setRequestingPerm(false);
 
-    // 2) Stop the manual stream — SpeechRecognition opens its own pipeline,
-    //    but the permission grant persists for the session.
-    micStream.getTracks().forEach((t) => t.stop());
-
-    // 3) Start SpeechRecognition.
     const r = getSpeechRecognition();
-    if (!r) { setPermError("Reconnaissance vocale non supportée. Essaie Chrome."); return; }
-    // Prefer ar-SA but fall back to generic Arabic so more browsers/users work.
+    if (!r) { setPermError(t("mem.recogUnsupported")); stopAudioResources(); return; }
     r.lang = "ar-SA";
     r.continuous = true;
-    r.interimResults = true;
+    r.interimResults = false;
     r.maxAlternatives = 3;
-    let full = "";
+    r.onstart = () => console.info("[Surah Journey] SpeechRecognition started", { lang: r.lang, continuous: r.continuous });
     r.onresult = (e: any) => {
-      let interim = "";
       for (let i = e.resultIndex; i < e.results.length; i++) {
-        // Pick the best-matching alternative against expected words.
+        if (!e.results[i].isFinal) continue;
         const alts: string[] = [];
         for (let a = 0; a < e.results[i].length; a++) alts.push(e.results[i][a].transcript);
         let chosen = alts[0] ?? "";
         let chosenScore = -1;
         for (const alt of alts) {
-          const s = diffRecitation(expected, (full + " " + interim + " " + alt).trim(), false).score;
+          const s = diffRecitation(expected, `${finalTranscriptRef.current} ${alt}`.trim(), false).score;
           if (s > chosenScore) { chosenScore = s; chosen = alt; }
         }
-        if (e.results[i].isFinal) full += " " + chosen; else interim += " " + chosen;
+        finalTranscriptRef.current = `${finalTranscriptRef.current} ${chosen}`.trim();
       }
-      const combined = (full + " " + interim).trim();
+      const combined = finalTranscriptRef.current;
       setTranscript(combined);
       setDiff(diffRecitation(expected, combined, false));
     };
     r.onerror = (e: any) => {
+      console.error("[Surah Journey] SpeechRecognition error:", e.error, e);
+      listeningRef.current = false;
       if (e.error === "not-allowed" || e.error === "service-not-allowed") {
-        setPermError("Accès au micro refusé. Autorise-le dans ton navigateur puis réessaie.");
+        setPermError(t("mem.permDenied"));
       } else if (e.error === "no-speech") {
-        setPermError("Je n'ai rien entendu. Réessaie en parlant plus fort.");
+        setPermError(t("mem.noSpeech"));
       } else if (e.error === "audio-capture") {
-        setPermError("Aucun micro détecté.");
+        setPermError(t("mem.permNoMic"));
       } else if (e.error === "language-not-supported") {
-        // Retry once with a generic Arabic tag
-        try { r.lang = "ar"; r.start(); setRecording(true); return; } catch { /* ignore */ }
-        setPermError("L'arabe n'est pas supporté par ton navigateur. Utilise Chrome.");
+        setPermError(t("mem.noArSupport"));
       } else if (e.error === "network") {
         setPermError("Erreur réseau pendant la reconnaissance. Vérifie ta connexion.");
       }
       setRecording(false);
+      stopAudioResources();
     };
     r.onend = () => {
+      console.info("[Surah Journey] SpeechRecognition ended", { manual: manualStopRef.current, transcript: finalTranscriptRef.current });
+      if (listeningRef.current && !manualStopRef.current) {
+        try {
+          r.start();
+          return;
+        } catch (err) {
+          console.error("[Surah Journey] SpeechRecognition restart failed:", err);
+        }
+      }
       setRecording(false);
-      const final = diffRecitation(expected, full.trim() || transcript, true);
+      stopAudioResources();
+      if (!finalTranscriptRef.current) {
+        setDiff(null);
+        if (manualStopRef.current) setPermError(t("mem.noSpeech"));
+        return;
+      }
+      const final = diffRecitation(expected, finalTranscriptRef.current, true);
       setDiff(final);
     };
     try {
@@ -359,11 +399,14 @@ function VerseStep({
       setRecording(true);
       recogRef.current = r;
     } catch {
-      setPermError("Impossible de démarrer le micro.");
+      setPermError(t("mem.permGeneric"));
+      stopAudioResources();
     }
   };
 
   const stop = () => {
+    manualStopRef.current = true;
+    listeningRef.current = false;
     try { recogRef.current?.stop(); } catch {/* ignore */}
   };
 
@@ -387,7 +430,7 @@ function VerseStep({
             playing && "animate-pulse"
           )}
         >
-          <Volume2 className="w-4 h-4" /> Écouter
+          <Volume2 className="w-4 h-4" /> {t("mem.listen")}
         </button>
       </div>
 
@@ -396,8 +439,8 @@ function VerseStep({
         {!revealed ? (
           <div className="flex flex-col items-center justify-center gap-3 py-8 text-white/40">
             <EyeOff className="w-8 h-8" />
-            <p className="text-sm">Le texte est caché. Récite de mémoire.</p>
-            <button onClick={() => setRevealed(true)} className="text-xs text-gold underline">Afficher quand même</button>
+            <p className="text-sm">{t("mem.hidden")}</p>
+            <button onClick={() => setRevealed(true)} className="text-xs text-gold underline">{t("mem.showAnyway")}</button>
           </div>
         ) : (
           <div dir="rtl" className="font-[Amiri_Quran] text-3xl sm:text-4xl leading-loose text-right break-words">
@@ -423,9 +466,9 @@ function VerseStep({
       {useMic && (
         <div className="flex flex-col items-center gap-3">
           <button
-            onClick={recording ? stop : start}
+            onClick={recording ? stop : handleStartClick}
             disabled={requestingPerm}
-            aria-label={recording ? "Arrêter" : "Commencer la récitation"}
+            aria-label={recording ? t("common.stop") : t("mem.tapToRecite")}
             className={cn(
               "relative w-20 h-20 rounded-full grid place-items-center transition-all active:scale-95 disabled:opacity-60",
               recording
@@ -443,10 +486,10 @@ function VerseStep({
           </button>
           <div className="text-xs text-white/60 text-center">
             {requestingPerm
-              ? "Demande d'accès au micro…"
+              ? t("mem.requesting")
               : recording
-                ? "🎙️ J'écoute… parle clairement en arabe"
-                : "Appuie pour réciter"}
+                ? t("mem.listening")
+                : t("mem.tapToRecite")}
           </div>
 
           {recording && <Waveform />}
@@ -464,7 +507,7 @@ function VerseStep({
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 flex flex-col gap-3 animate-fade-in">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-xs uppercase tracking-wider text-white/50">Score</div>
+              <div className="text-xs uppercase tracking-wider text-white/50">{t("mem.score")}</div>
               <div className="font-display text-3xl font-bold">
                 {diff.score}<span className="text-white/40 text-xl">%</span>
               </div>
@@ -472,7 +515,7 @@ function VerseStep({
             <FeedbackBadge score={diff.score} />
           </div>
           <div className="text-xs text-white/50">
-            {diff.correctCount}/{diff.totalCount} mots corrects
+            {t("mem.wordsCorrect", { c: diff.correctCount, t: diff.totalCount })}
           </div>
         </div>
       )}
@@ -486,14 +529,14 @@ function VerseStep({
               className="flex-1 h-12 rounded-2xl border-white/20 bg-transparent text-white hover:bg-white/10 hover:text-white"
               disabled={recording}
             >
-              <RotateCcw className="w-4 h-4 mr-2" /> Recommencer
+              <RotateCcw className="w-4 h-4 mr-2" /> {t("mem.restart")}
             </Button>
             <Button
               onClick={submit}
               disabled={!diff || recording}
               className="flex-1 h-12 rounded-2xl bg-gold text-[#0A0E1A] hover:bg-gold/90 font-bold disabled:opacity-40"
             >
-              {isFullSurah ? "Terminer" : "Verset suivant"}
+              {isFullSurah ? t("mem.finish") : t("mem.next")}
             </Button>
           </>
         ) : (
@@ -501,7 +544,7 @@ function VerseStep({
             onClick={() => onDone(100)}
             className="flex-1 h-12 rounded-2xl bg-gold text-[#0A0E1A] hover:bg-gold/90 font-bold"
           >
-            {isFullSurah ? "Terminer" : "Verset suivant"}
+            {isFullSurah ? t("mem.finish") : t("mem.next")}
           </Button>
         )}
       </div>

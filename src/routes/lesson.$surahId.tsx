@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { X, Trophy, Star, Flame } from "lucide-react";
-import { SURAHS } from "@/lib/surahs";
+import { useLocalizedSurah } from "@/lib/surah-localization";
 import { useProgress } from "@/lib/progress";
 import { useGame } from "@/lib/game";
 import { TopBar } from "@/components/TopBar";
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useLang } from "@/lib/preferences";
 
 export const Route = createFileRoute("/lesson/$surahId")({
   head: () => ({
@@ -38,10 +39,11 @@ function buildSteps(ayahCount: number, longForm = false): Step[] {
 function LessonPage() {
   const { surahId } = Route.useParams();
   const navigate = useNavigate();
-  const surah = SURAHS.find((s) => s.id === Number(surahId));
+  const surah = useLocalizedSurah(Number(surahId));
   const { completeSurah, progress } = useProgress();
   const { trackLesson, addCoins } = useGame();
   const { user } = useAuth();
+  const { t } = useLang();
 
   const steps = useMemo(() => (surah ? buildSteps(surah.ayahs.length, !!surah.longForm) : []), [surah]);
   const [stepIdx, setStepIdx] = useState(0);
@@ -95,8 +97,8 @@ function LessonPage() {
             <Trophy className="w-16 h-16 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="font-display text-4xl font-bold">Leçon terminée !</h1>
-            <p className="text-muted-foreground mt-2">Tu as étudié la sourate {surah.name}</p>
+            <h1 className="font-display text-4xl font-bold">{t("lesson.done")}</h1>
+            <p className="text-muted-foreground mt-2">{t("lesson.studied", { name: surah.name })}</p>
           </div>
           <div className="grid grid-cols-2 gap-3 w-full">
             <Stat icon={<Star className="w-5 h-5 text-gold" fill="currentColor" />} value={`+${xpGain}`} label="XP gagnés" />

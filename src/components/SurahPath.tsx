@@ -1,8 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { Lock, Check, Star, Medal, GraduationCap, Trophy, Mic } from "lucide-react";
 import {
-  CURRICULUM,
   FLAT_CURRICULUM,
+  getLocalizedCurriculum,
   isNodeUnlocked,
   getPassedJuz,
   juzQuizUnlocked,
@@ -13,6 +13,7 @@ import { useSurahProgress } from "@/lib/surah-progress";
 import { useMastery, badgeColor, type Badge } from "@/lib/mastery";
 import { useMemorization } from "@/lib/memorization";
 import { getStrengthColor } from "@/lib/spaced-repetition";
+import { useLang } from "@/lib/preferences";
 import { cn } from "@/lib/utils";
 
 export function SurahPath() {
@@ -20,6 +21,8 @@ export function SurahPath() {
   const { byNumber } = useSurahProgress();
   const { mastery } = useMastery();
   const { data: memData } = useMemorization();
+  const { lang, t } = useLang();
+  const curriculum = getLocalizedCurriculum(lang);
   if (!ready) return null;
 
   const masteredIds = Object.keys(mastery).map(Number);
@@ -28,11 +31,11 @@ export function SurahPath() {
   let flatIndex = -1;
   return (
     <div className="max-w-md mx-auto px-4 py-8 pb-32 md:pb-8">
-      {CURRICULUM.map((section) => (
+      {curriculum.map((section) => (
         <div key={section.id} className="mb-14">
           <div className="text-center mb-8">
             <p className="text-xs font-bold text-primary uppercase tracking-[0.2em]">
-              Section {section.id}
+              {t("path.section", { id: section.id })}
             </p>
             <h2 className="font-display text-3xl font-bold mt-1">{section.name}</h2>
             <p className="font-[Amiri_Quran] text-lg text-muted-foreground mt-1">
@@ -59,7 +62,7 @@ export function SurahPath() {
                     style={{ transform: `translateX(${offset}px)` }}
                     className="relative animate-fade-in-up"
                   >
-                    <QuizNode node={node} open={quizOpen} passed={passed} />
+                    <QuizNode node={node} open={quizOpen} passed={passed} t={t} />
                   </div>
                 );
               }
@@ -84,6 +87,7 @@ export function SurahPath() {
                     badge={masteryEntry?.badge}
                     mastered={!!masteryEntry}
                     memorizedPct={node.surahId != null ? memData[node.surahId]?.pct ?? 0 : 0}
+                    t={t}
                   />
                   {showExam && (
                     <Link
@@ -92,7 +96,7 @@ export function SurahPath() {
                       className="absolute left-1/2 -bottom-7 -translate-x-1/2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gold text-primary-foreground text-xs font-bold uppercase tracking-wider shadow-[var(--shadow-gold)] active:translate-y-0.5 animate-glow-pulse whitespace-nowrap"
                     >
                       <GraduationCap className="w-3.5 h-3.5" />
-                      Évaluation finale
+                      {t("path.finalEval")}
                     </Link>
                   )}
                   {unlocked && completed && node.surahId != null && !showExam && (
@@ -102,7 +106,7 @@ export function SurahPath() {
                       className="absolute left-1/2 -bottom-7 -translate-x-1/2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-bold uppercase tracking-wider active:translate-y-0.5 whitespace-nowrap hover:bg-primary/20 transition"
                     >
                       <Mic className="w-3.5 h-3.5" />
-                      Mémoriser
+                       {t("path.memorize")}
                     </Link>
                   )}
                 </div>
@@ -112,7 +116,7 @@ export function SurahPath() {
         </div>
       ))}
       <p className="text-center text-xs text-muted-foreground pt-2">
-        {FLAT_CURRICULUM.filter((n) => n.surahId != null).length} leçons disponibles · plus à venir ✨
+        {t("path.lessonsAvailable", { count: FLAT_CURRICULUM.filter((n) => n.surahId != null).length })}
       </p>
     </div>
   );
@@ -127,6 +131,7 @@ function SurahNode({
   badge,
   mastered,
   memorizedPct = 0,
+  t,
 }: {
   node: CurriculumNode;
   unlocked: boolean;
@@ -136,6 +141,7 @@ function SurahNode({
   badge?: Badge;
   mastered: boolean;
   memorizedPct?: number;
+  t: (key: string, vars?: Record<string, string | number>) => string;
 }) {
   const interactive = unlocked && !node.comingSoon && node.surahId != null;
   const inner = (
@@ -171,7 +177,7 @@ function SurahNode({
         )}
         {unlocked && node.comingSoon && (
           <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-muted text-[10px] font-bold text-muted-foreground whitespace-nowrap border border-border">
-            BIENTÔT
+            {t("path.comingSoon")}
           </div>
         )}
         {!unlocked && (
@@ -196,7 +202,7 @@ function SurahNode({
         </div>
         {memorizedPct > 0 && (
           <div className="mt-1 inline-flex items-center gap-1 text-[10px] font-bold text-primary">
-            <Mic className="w-2.5 h-2.5" /> {memorizedPct}% mémorisé
+            <Mic className="w-2.5 h-2.5" /> {memorizedPct}% {t("path.memorize").toLowerCase()}
           </div>
         )}
       </div>
@@ -211,7 +217,7 @@ function SurahNode({
   );
 }
 
-function QuizNode({ node, open, passed }: { node: CurriculumNode; open: boolean; passed: boolean }) {
+function QuizNode({ node, open, passed, t }: { node: CurriculumNode; open: boolean; passed: boolean; t: (key: string, vars?: Record<string, string | number>) => string }) {
   const inner = (
     <div className="flex flex-col items-center gap-2 group">
       <div
@@ -227,8 +233,8 @@ function QuizNode({ node, open, passed }: { node: CurriculumNode; open: boolean;
       <div className="text-center pt-1">
         <div className="font-display font-bold">{node.name}</div>
         <div className="text-xs text-muted-foreground">{node.meaning}</div>
-        {!open && <div className="text-[10px] text-muted-foreground mt-0.5">Termine toutes les sourates du Juz</div>}
-        {passed && <div className="text-[10px] font-bold text-success mt-0.5 uppercase tracking-wider">Validé</div>}
+        {!open && <div className="text-[10px] text-muted-foreground mt-0.5">{t("path.finishJuz")}</div>}
+        {passed && <div className="text-[10px] font-bold text-success mt-0.5 uppercase tracking-wider">{t("path.validated")}</div>}
       </div>
     </div>
   );

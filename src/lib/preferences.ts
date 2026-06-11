@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 /* ---------- Language ---------- */
 export type Lang = "fr" | "en";
@@ -63,6 +63,26 @@ const DICT: Record<Lang, Record<string, string>> = {
     "mem.noSpeech": "Je n'ai rien entendu. Réessaie en parlant plus fort.",
     "mem.noArSupport": "L'arabe (ar-SA) n'est pas supporté par ton navigateur. Utilise Chrome.",
     "mem.recogUnsupported": "Reconnaissance vocale non supportée. Essaie Chrome.",
+    "common.continue": "Continuer",
+    "common.check": "Vérifier",
+    "common.stop": "Arrêter",
+    "lesson.listen.title": "Écoute et répète",
+    "lesson.listen.subtitle": "Écoute le verset, puis enregistre ta récitation.",
+    "lesson.transliteration": "Translittération",
+    "lesson.translation": "Traduction",
+    "lesson.match.title": "Associe les mots",
+    "lesson.match.subtitle": "Touche un mot arabe puis sa signification.",
+    "lesson.blank.title": "Complète le verset",
+    "lesson.blank.subtitle": "Choisis le mot manquant.",
+    "lesson.done": "Leçon terminée !",
+    "lesson.studied": "Tu as étudié la sourate {name}",
+    "path.section": "Section {id}",
+    "path.finalEval": "Évaluation finale",
+    "path.memorize": "Mémoriser",
+    "path.lessonsAvailable": "{count} leçons disponibles · plus à venir ✨",
+    "path.comingSoon": "BIENTÔT",
+    "path.finishJuz": "Termine toutes les sourates du Juz",
+    "path.validated": "Validé",
   },
   en: {
     "settings.title": "Appearance",
@@ -117,12 +137,46 @@ const DICT: Record<Lang, Record<string, string>> = {
     "mem.noSpeech": "I didn't hear anything. Try again, louder.",
     "mem.noArSupport": "Arabic (ar-SA) isn't supported by your browser. Use Chrome.",
     "mem.recogUnsupported": "Voice recognition not supported. Try Chrome.",
+    "common.continue": "Continue",
+    "common.check": "Check",
+    "common.stop": "Stop",
+    "lesson.listen.title": "Listen and repeat",
+    "lesson.listen.subtitle": "Listen to the verse, then record your recitation.",
+    "lesson.transliteration": "Transliteration",
+    "lesson.translation": "Translation",
+    "lesson.match.title": "Match the words",
+    "lesson.match.subtitle": "Tap an Arabic word, then its meaning.",
+    "lesson.blank.title": "Complete the verse",
+    "lesson.blank.subtitle": "Choose the missing word.",
+    "lesson.done": "Lesson complete!",
+    "lesson.studied": "You studied Surah {name}",
+    "path.section": "Section {id}",
+    "path.finalEval": "Final assessment",
+    "path.memorize": "Memorize",
+    "path.lessonsAvailable": "{count} lessons available · more coming ✨",
+    "path.comingSoon": "SOON",
+    "path.finishJuz": "Complete every Surah in this Juz",
+    "path.validated": "Validated",
   },
 };
 
 function readLang(): Lang {
   if (typeof window === "undefined") return "fr";
   return (localStorage.getItem(LANG_KEY) as Lang) || "fr";
+}
+
+function subscribeLang(callback: () => void) {
+  if (typeof window === "undefined") return () => {};
+  window.addEventListener(LANG_EVENT, callback);
+  window.addEventListener("storage", callback);
+  return () => {
+    window.removeEventListener(LANG_EVENT, callback);
+    window.removeEventListener("storage", callback);
+  };
+}
+
+export function getCurrentLang(): Lang {
+  return readLang();
 }
 
 export function translate(lang: Lang, key: string, vars?: Record<string, string | number>): string {
@@ -132,29 +186,15 @@ export function translate(lang: Lang, key: string, vars?: Record<string, string 
 }
 
 export function useLang() {
-  const [lang, setLangState] = useState<Lang>(() => readLang());
+  const lang = useSyncExternalStore(subscribeLang, readLang, () => "fr" as Lang);
   useEffect(() => {
-    const saved = readLang();
-    setLangState(saved);
-    if (typeof document !== "undefined") document.documentElement.setAttribute("lang", saved);
-    const on = () => {
-      const next = readLang();
-      setLangState(next);
-      if (typeof document !== "undefined") document.documentElement.setAttribute("lang", next);
-    };
-    window.addEventListener(LANG_EVENT, on);
-    window.addEventListener("storage", on);
-    return () => {
-      window.removeEventListener(LANG_EVENT, on);
-      window.removeEventListener("storage", on);
-    };
-  }, []);
+    if (typeof document !== "undefined") document.documentElement.setAttribute("lang", lang);
+  }, [lang]);
   const setLang = (l: Lang) => {
     if (typeof window !== "undefined") {
       localStorage.setItem(LANG_KEY, l);
       window.dispatchEvent(new Event(LANG_EVENT));
     }
-    setLangState(l);
     if (typeof document !== "undefined") document.documentElement.setAttribute("lang", l);
   };
   const t = (k: string, vars?: Record<string, string | number>) => translate(lang, k, vars);
