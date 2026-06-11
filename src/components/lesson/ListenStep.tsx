@@ -5,6 +5,7 @@ import { ayahAudioUrl, type Ayah, type Surah } from "@/lib/surahs";
 import { Button } from "@/components/ui/button";
 import { VoiceRecorder } from "./VoiceRecorder";
 import { usePremium } from "@/lib/premium";
+import { useLang } from "@/lib/preferences";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -20,6 +21,7 @@ export function ListenStep({ surah, ayah, ayahIndex, onContinue }: Props) {
   const [played, setPlayed] = useState(false);
   const [peeking, setPeeking] = useState(false);
   const { is_premium } = usePremium();
+  const { t } = useLang();
 
   const play = () => {
     const url = ayahAudioUrl(surah.number, ayahIndex);
@@ -35,8 +37,8 @@ export function ListenStep({ surah, ayah, ayahIndex, onContinue }: Props) {
   return (
     <div className="flex flex-col gap-6 animate-[bounce-in_0.5s]">
       <div>
-        <h2 className="font-display text-2xl font-bold">Écoute et répète</h2>
-        <p className="text-muted-foreground text-sm mt-1">Écoute le verset, puis enregistre ta récitation.</p>
+        <h2 className="font-display text-2xl font-bold">{t("lesson.listen.title")}</h2>
+        <p className="text-muted-foreground text-sm mt-1">{t("lesson.listen.subtitle")}</p>
       </div>
 
       <div className="bg-card rounded-3xl p-6 border-2 border-border shadow-[var(--shadow-soft)] flex flex-col items-center gap-5">
@@ -82,11 +84,11 @@ export function ListenStep({ surah, ayah, ayahIndex, onContinue }: Props) {
 
         <div className="w-full border-t border-border pt-4 flex flex-col gap-2">
           <div>
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Translittération</div>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">{t("lesson.transliteration")}</div>
             <p className="text-base text-foreground/80 italic">{ayah.transliteration}</p>
           </div>
           <div>
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Traduction</div>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">{t("lesson.translation")}</div>
             <p className="text-sm text-muted-foreground">{ayah.translation}</p>
           </div>
         </div>
@@ -99,7 +101,7 @@ export function ListenStep({ surah, ayah, ayahIndex, onContinue }: Props) {
         disabled={!played}
         className="h-14 rounded-2xl text-base font-bold uppercase tracking-wide shadow-[var(--shadow-node)] active:translate-y-1"
       >
-        Continuer
+        {t("common.continue")}
       </Button>
     </div>
   );
