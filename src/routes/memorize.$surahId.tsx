@@ -262,6 +262,11 @@ function VerseStep({
   const [playing, setPlaying] = useState(false);
   const recogRef = useRef<any>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const micStreamRef = useRef<MediaStream | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const finalTranscriptRef = useRef("");
+  const manualStopRef = useRef(false);
+  const { t } = useLang();
 
   useEffect(() => { setRevealed(showText); setDiff(null); setTranscript(""); }, [ayahIndex, showText]);
 
@@ -282,21 +287,36 @@ function VerseStep({
 
   const [requestingPerm, setRequestingPerm] = useState(false);
 
-  const start = async () => {
-    setPermError(null);
+  useEffect(() => () => stopAudioResources(), []);
 
-    // 1) Explicitly request microphone permission first so the browser
-    //    prompts the user, and we can surface a clear error if denied.
-    if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
-      setPermError("Ton navigateur ne supporte pas l'accès au micro. Essaie Chrome.");
-      return;
-    }
+  const stopAudioResources = () => {
+    micStreamRef.current?.getTracks().forEach((track) => track.stop());
+    micStreamRef.current = null;
+  };
+
+  const ensureAudioContextReady = async () => {
+    const AudioContextCtor = (window as any).AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextCtor) return;
+    const context = audioContextRef.current ?? new AudioContextCtor();
+    audioContextRef.current = context;
+    if (context.state === "suspended") await context.resume();
+  };
+
+  const handleStartClick = () => {
+    const permissionPromise = navigator.mediaDevices.getUserMedia(MIC_AUDIO_CONSTRAINTS);
+    void start(permissionPromise);
+  };
+
+  const start = async (permissionPromise: Promise<MediaStream>) => {
     setRequestingPerm(true);
-    let micStream: MediaStream | null = null;
+    setPermError(null);
+    setDiff(null);
+    setTranscript("");
+    finalTranscriptRef.current = "";
+    manualStopRef.current = false;
     try {
-      micStream = await navigator.mediaDevices.getUserMedia({
-        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
-      });
+      micStreamRef.current = await permissionPromise;
+      await ensureAudioContextReady();
     } catch (err: any) {
       setRequestingPerm(false);
       const name = err?.name || "";
@@ -311,57 +331,52 @@ function VerseStep({
     }
     setRequestingPerm(false);
 
-    // 2) Stop the manual stream — SpeechRecognition opens its own pipeline,
-    //    but the permission grant persists for the session.
-    micStream.getTracks().forEach((t) => t.stop());
-
-    // 3) Start SpeechRecognition.
     const r = getSpeechRecognition();
-    if (!r) { setPermError("Reconnaissance vocale non supportée. Essaie Chrome."); return; }
-    // Prefer ar-SA but fall back to generic Arabic so more browsers/users work.
+    if (!r) { setPermError(t("mem.recogUnsupported")); stopAudioResources(); return; }
     r.lang = "ar-SA";
     r.continuous = true;
-    r.interimResults = true;
+    r.interimResults = false;
     r.maxAlternatives = 3;
-    let full = "";
+    r.onstart = () => console.info("[Surah Journey] SpeechRecognition started", { lang: r.lang, continuous: r.continuous });
     r.onresult = (e: any) => {
-      let interim = "";
       for (let i = e.resultIndex; i < e.results.length; i++) {
-        // Pick the best-matching alternative against expected words.
+        if (!e.results[i].isFinal) continue;
         const alts: string[] = [];
         for (let a = 0; a < e.results[i].length; a++) alts.push(e.results[i][a].transcript);
         let chosen = alts[0] ?? "";
         let chosenScore = -1;
         for (const alt of alts) {
-          const s = diffRecitation(expected, (full + " " + interim + " " + alt).trim(), false).score;
+          const s = diffRecitation(expected, `${finalTranscriptRef.current} ${alt}`.trim(), false).score;
           if (s > chosenScore) { chosenScore = s; chosen = alt; }
         }
-        if (e.results[i].isFinal) full += " " + chosen; else interim += " " + chosen;
+        finalTranscriptRef.current = `${finalTranscriptRef.current} ${chosen}`.trim();
       }
-      const combined = (full + " " + interim).trim();
+      const combined = finalTranscriptRef.current;
       setTranscript(combined);
       setDiff(diffRecitation(expected, combined, false));
     };
     r.onerror = (e: any) => {
+      console.error("[Surah Journey] SpeechRecognition error:", e.error, e);
       if (e.error === "not-allowed" || e.error === "service-not-allowed") {
-        setPermError("Accès au micro refusé. Autorise-le dans ton navigateur puis réessaie.");
+        setPermError(t("mem.permDenied"));
       } else if (e.error === "no-speech") {
-        setPermError("Je n'ai rien entendu. Réessaie en parlant plus fort.");
+        setPermError(t("mem.noSpeech"));
       } else if (e.error === "audio-capture") {
-        setPermError("Aucun micro détecté.");
+        setPermError(t("mem.permNoMic"));
       } else if (e.error === "language-not-supported") {
-        // Retry once with a generic Arabic tag
-        try { r.lang = "ar"; r.start(); setRecording(true); return; } catch { /* ignore */ }
-        setPermError("L'arabe n'est pas supporté par ton navigateur. Utilise Chrome.");
+        setPermError(t("mem.noArSupport"));
       } else if (e.error === "network") {
         setPermError("Erreur réseau pendant la reconnaissance. Vérifie ta connexion.");
       }
       setRecording(false);
     };
     r.onend = () => {
+      console.info("[Surah Journey] SpeechRecognition ended", { manual: manualStopRef.current, transcript: finalTranscriptRef.current });
       setRecording(false);
-      const final = diffRecitation(expected, full.trim() || transcript, true);
+      stopAudioResources();
+      const final = diffRecitation(expected, finalTranscriptRef.current, true);
       setDiff(final);
+      if (!finalTranscriptRef.current && manualStopRef.current) setPermError(t("mem.noSpeech"));
     };
     try {
       r.start();
@@ -373,6 +388,7 @@ function VerseStep({
   };
 
   const stop = () => {
+    manualStopRef.current = true;
     try { recogRef.current?.stop(); } catch {/* ignore */}
   };
 
