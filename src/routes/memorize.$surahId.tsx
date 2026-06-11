@@ -448,7 +448,7 @@ function VerseStep({
       {useMic && (
         <div className="flex flex-col items-center gap-3">
           <button
-            onClick={recording ? stop : start}
+            onClick={recording ? stop : handleStartClick}
             disabled={requestingPerm}
             aria-label={recording ? "Arrêter" : "Commencer la récitation"}
             className={cn(
