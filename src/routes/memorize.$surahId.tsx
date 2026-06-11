@@ -266,6 +266,7 @@ function VerseStep({
   const audioContextRef = useRef<AudioContext | null>(null);
   const finalTranscriptRef = useRef("");
   const manualStopRef = useRef(false);
+  const listeningRef = useRef(false);
   const { t } = useLang();
 
   useEffect(() => { setRevealed(showText); setDiff(null); setTranscript(""); }, [ayahIndex, showText]);
@@ -314,6 +315,7 @@ function VerseStep({
     setTranscript("");
     finalTranscriptRef.current = "";
     manualStopRef.current = false;
+    listeningRef.current = true;
     try {
       micStreamRef.current = await permissionPromise;
       await ensureAudioContextReady();
@@ -357,6 +359,7 @@ function VerseStep({
     };
     r.onerror = (e: any) => {
       console.error("[Surah Journey] SpeechRecognition error:", e.error, e);
+      listeningRef.current = false;
       if (e.error === "not-allowed" || e.error === "service-not-allowed") {
         setPermError(t("mem.permDenied"));
       } else if (e.error === "no-speech") {
@@ -373,6 +376,14 @@ function VerseStep({
     };
     r.onend = () => {
       console.info("[Surah Journey] SpeechRecognition ended", { manual: manualStopRef.current, transcript: finalTranscriptRef.current });
+      if (listeningRef.current && !manualStopRef.current) {
+        try {
+          r.start();
+          return;
+        } catch (err) {
+          console.error("[Surah Journey] SpeechRecognition restart failed:", err);
+        }
+      }
       setRecording(false);
       stopAudioResources();
       if (!finalTranscriptRef.current) {
@@ -395,6 +406,7 @@ function VerseStep({
 
   const stop = () => {
     manualStopRef.current = true;
+    listeningRef.current = false;
     try { recogRef.current?.stop(); } catch {/* ignore */}
   };
 
