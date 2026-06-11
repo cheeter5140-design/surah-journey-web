@@ -210,7 +210,7 @@ function MemorizeSession({ surah, mode, onExit }: { surah: Surah; mode: Mode; on
     <div className="flex flex-col gap-5">
       <div>
         <div className="flex items-center justify-between text-xs text-white/60 mb-2">
-          <span>{isMaitrise ? "Récitation complète" : `Verset ${idx + 1} / ${total}`}</span>
+          <span>{isMaitrise ? t("mem.fullRecitation") : t("mem.verseOf", { n: idx + 1, t: total })}</span>
           <span className="font-bold tabular-nums">{Math.round(progressPct)}%</span>
         </div>
         <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
