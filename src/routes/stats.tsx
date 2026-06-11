@@ -8,7 +8,7 @@ import { useMastery } from "@/lib/mastery";
 import { useSurahProgress } from "@/lib/surah-progress";
 import { useMemorization } from "@/lib/memorization";
 import { FLAT_CURRICULUM } from "@/lib/curriculum";
-import { SURAHS } from "@/lib/surahs";
+import { useLocalizedSurahs } from "@/lib/surah-localization";
 import { getStrengthColor } from "@/lib/spaced-repetition";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +22,7 @@ function StatsPage() {
   const { mastery } = useMastery();
   const { rows } = useSurahProgress();
   const { data: memData } = useMemorization();
+  const surahs = useLocalizedSurahs();
 
   const totalCurated = FLAT_CURRICULUM.filter((n) => n.surahId != null).length;
   const completed = progress.completed.length;
@@ -127,16 +128,16 @@ function StatsPage() {
             </div>
           </section>
         )}
-        <MemorizationSection memData={memData} />
+        <MemorizationSection memData={memData} surahs={surahs} />
       </main>
       <BottomNav />
     </div>
   );
 }
 
-function MemorizationSection({ memData }: { memData: Record<number, { pct: number; verses: number[]; updatedAt: string }> }) {
+function MemorizationSection({ memData, surahs }: { memData: Record<number, { pct: number; verses: number[]; updatedAt: string }>; surahs: ReturnType<typeof useLocalizedSurahs> }) {
   const entries = Object.entries(memData)
-    .map(([id, v]) => ({ id: Number(id), ...v, surah: SURAHS.find((s) => s.id === Number(id)) }))
+    .map(([id, v]) => ({ id: Number(id), ...v, surah: surahs.find((s) => s.id === Number(id)) }))
     .filter((e) => e.surah)
     .sort((a, b) => b.pct - a.pct);
   const fullCount = entries.filter((e) => e.pct >= 95).length;
