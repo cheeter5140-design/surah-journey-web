@@ -17,6 +17,7 @@ import {
 } from "@/lib/memorization";
 import { useGame } from "@/lib/game";
 import { useLang } from "@/lib/preferences";
+import { isNativeShell, requestNativeMicPermission } from "@/lib/native-mic";
 
 export const Route = createFileRoute("/memorize/$surahId")({
   head: () => ({ meta: [{ title: "Mémorisation — Nour" }] }),
@@ -304,6 +305,23 @@ function VerseStep({
   };
 
   const handleStartClick = () => {
+    if (isNativeShell()) {
+      // Native wrapper: request OS-level mic permission via the native bridge
+      // first, otherwise the WebView never shows a prompt.
+      void (async () => {
+        setRequestingPerm(true);
+        const perm = await requestNativeMicPermission();
+        console.info("[Surah Journey] Native mic permission:", perm);
+        if (perm === "denied") {
+          setRequestingPerm(false);
+          setPermError(t("mem.permDenied"));
+          return;
+        }
+        void start(navigator.mediaDevices.getUserMedia(MIC_AUDIO_CONSTRAINTS));
+      })();
+      return;
+    }
+    // Web: call getUserMedia synchronously inside the click gesture.
     const permissionPromise = navigator.mediaDevices.getUserMedia(MIC_AUDIO_CONSTRAINTS);
     void start(permissionPromise);
   };
