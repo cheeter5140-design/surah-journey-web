@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SURAHS, type Surah } from "./surahs";
 import { useLang, type Lang } from "./preferences";
 
@@ -895,14 +895,14 @@ export function getLocalizedSurahMeta(quranNumber: number, lang: Lang): { name?:
 export function localizeSurah(surah: Surah, lang: Lang): Surah {
   if (lang !== "en") return surah;
   const content = EN_SURAH_CONTENT[surah.number];
-  if (!content) return surah;
+  const fetched = readFetchedTranslations(surah.number);
   return {
     ...surah,
-    name: content.name || surah.name,
-    meaning: content.meaning || surah.meaning,
+    name: content?.name || surah.name,
+    meaning: content?.meaning || surah.meaning,
     ayahs: surah.ayahs.map((ayah, index) => ({
       ...ayah,
-      translation: content.ayahTranslations?.[index] ?? ayah.translation,
+      translation: content?.ayahTranslations?.[index] ?? fetched?.[index] ?? ayah.translation,
     })),
   };
 }
@@ -916,12 +916,83 @@ export function getLocalizedSurahById(surahId: number, lang: Lang): Surah | unde
   return surah ? localizeSurah(surah, lang) : undefined;
 }
 
+/* ---------- Runtime English translation fallback (Sahih International) ----------
+   Surahs without bundled English verse translations are fetched once from
+   the Al Quran Cloud API and cached in localStorage, so the whole data layer
+   switches language — not just the hardcoded subset. */
+
+const FETCH_CACHE_KEY = "qpath_en_translations_v1";
+const TRANSLATION_EVENT = "surah-translations:update";
+const pendingFetches = new Set<number>();
+
+function readFetchCache(): Record<number, string[]> {
+  if (typeof window === "undefined") return {};
+  try {
+    return JSON.parse(localStorage.getItem(FETCH_CACHE_KEY) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function readFetchedTranslations(quranNumber: number): string[] | undefined {
+  return readFetchCache()[quranNumber];
+}
+
+function hasCompleteEnTranslations(surah: Surah): boolean {
+  const bundled = EN_SURAH_CONTENT[surah.number]?.ayahTranslations;
+  if (bundled && bundled.length >= surah.ayahs.length) return true;
+  const fetched = readFetchedTranslations(surah.number);
+  return !!fetched && fetched.length >= surah.ayahs.length;
+}
+
+function ensureEnTranslations(surah: Surah) {
+  if (typeof window === "undefined") return;
+  if (hasCompleteEnTranslations(surah) || pendingFetches.has(surah.number)) return;
+  pendingFetches.add(surah.number);
+  fetch(`https://api.alquran.cloud/v1/surah/${surah.number}/en.sahih`)
+    .then((r) => r.json())
+    .then((json) => {
+      const texts: string[] | undefined = json?.data?.ayahs?.map((a: any) => a.text);
+      if (!texts?.length) return;
+      const cache = readFetchCache();
+      cache[surah.number] = texts;
+      try {
+        localStorage.setItem(FETCH_CACHE_KEY, JSON.stringify(cache));
+      } catch {
+        /* storage full — keep in-memory only */
+      }
+      window.dispatchEvent(new Event(TRANSLATION_EVENT));
+    })
+    .catch((err) => console.warn("[surah-localization] EN translation fetch failed:", err))
+    .finally(() => pendingFetches.delete(surah.number));
+}
+
+function useTranslationVersion(): number {
+  const [version, setVersion] = useState(0);
+  useEffect(() => {
+    const on = () => setVersion((v) => v + 1);
+    window.addEventListener(TRANSLATION_EVENT, on);
+    return () => window.removeEventListener(TRANSLATION_EVENT, on);
+  }, []);
+  return version;
+}
+
 export function useLocalizedSurahs(): Surah[] {
   const { lang } = useLang();
-  return useMemo(() => getLocalizedSurahs(lang), [lang]);
+  const version = useTranslationVersion();
+  useEffect(() => {
+    if (lang === "en") SURAHS.forEach(ensureEnTranslations);
+  }, [lang]);
+  return useMemo(() => getLocalizedSurahs(lang), [lang, version]);
 }
 
 export function useLocalizedSurah(surahId: number): Surah | undefined {
   const { lang } = useLang();
-  return useMemo(() => getLocalizedSurahById(surahId, lang), [surahId, lang]);
+  const version = useTranslationVersion();
+  useEffect(() => {
+    if (lang !== "en") return;
+    const surah = SURAHS.find((s) => s.id === surahId);
+    if (surah) ensureEnTranslations(surah);
+  }, [lang, surahId]);
+  return useMemo(() => getLocalizedSurahById(surahId, lang), [surahId, lang, version]);
 }
