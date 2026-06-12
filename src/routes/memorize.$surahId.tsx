@@ -355,48 +355,65 @@ function VerseStep({
     if (!r) { setPermError(t("mem.recogUnsupported")); stopAudioResources(); return; }
     r.lang = "ar-SA";
     r.continuous = true;
-    r.interimResults = false;
+    r.interimResults = true;
     r.maxAlternatives = 3;
-    r.onstart = () => console.info("[Surah Journey] SpeechRecognition started", { lang: r.lang, continuous: r.continuous });
+    r.onstart = () => console.log("[Surah Journey] SpeechRecognition started", { lang: r.lang, continuous: r.continuous, interim: r.interimResults });
+    r.onaudiostart = () => console.log("[Surah Journey] Audio capture started");
+    r.onsoundstart = () => console.log("[Surah Journey] Sound detected");
+    r.onspeechstart = () => console.log("[Surah Journey] Speech detected");
+    r.onspeechend = () => console.log("[Surah Journey] Speech ended");
     r.onresult = (e: any) => {
+      console.log("[Surah Journey] Transcribed text:", e.results);
+      let interim = "";
       for (let i = e.resultIndex; i < e.results.length; i++) {
-        if (!e.results[i].isFinal) continue;
-        const alts: string[] = [];
-        for (let a = 0; a < e.results[i].length; a++) alts.push(e.results[i][a].transcript);
-        let chosen = alts[0] ?? "";
-        let chosenScore = -1;
-        for (const alt of alts) {
-          const s = diffRecitation(expected, `${finalTranscriptRef.current} ${alt}`.trim(), false).score;
-          if (s > chosenScore) { chosenScore = s; chosen = alt; }
+        const res = e.results[i];
+        if (res.isFinal) {
+          const alts: string[] = [];
+          for (let a = 0; a < res.length; a++) alts.push(res[a].transcript);
+          console.log("[Surah Journey] Final alts:", alts);
+          let chosen = alts[0] ?? "";
+          let chosenScore = -1;
+          for (const alt of alts) {
+            const s = diffRecitation(expected, `${finalTranscriptRef.current} ${alt}`.trim(), false).score;
+            if (s > chosenScore) { chosenScore = s; chosen = alt; }
+          }
+          finalTranscriptRef.current = `${finalTranscriptRef.current} ${chosen}`.trim();
+        } else {
+          interim += res[0].transcript;
         }
-        finalTranscriptRef.current = `${finalTranscriptRef.current} ${chosen}`.trim();
       }
-      const combined = finalTranscriptRef.current;
+      const combined = `${finalTranscriptRef.current} ${interim}`.trim();
       setTranscript(combined);
-      setDiff(diffRecitation(expected, combined, false));
+      if (combined) setDiff(diffRecitation(expected, combined, false));
     };
     r.onerror = (e: any) => {
-      console.error("[Surah Journey] SpeechRecognition error:", e.error, e);
+      console.error("[Surah Journey] SpeechRecognition error:", e.error, e.message || "", e);
+      // no-speech / aborted are recoverable — let onend auto-restart instead
+      if (e.error === "no-speech" || e.error === "aborted") {
+        return;
+      }
       listeningRef.current = false;
       if (e.error === "not-allowed" || e.error === "service-not-allowed") {
         setPermError(t("mem.permDenied"));
-      } else if (e.error === "no-speech") {
-        setPermError(t("mem.noSpeech"));
       } else if (e.error === "audio-capture") {
         setPermError(t("mem.permNoMic"));
       } else if (e.error === "language-not-supported") {
         setPermError(t("mem.noArSupport"));
       } else if (e.error === "network") {
         setPermError("Erreur réseau pendant la reconnaissance. Vérifie ta connexion.");
+      } else {
+        setPermError(`Erreur reconnaissance: ${e.error}`);
       }
       setRecording(false);
       stopAudioResources();
     };
     r.onend = () => {
-      console.info("[Surah Journey] SpeechRecognition ended", { manual: manualStopRef.current, transcript: finalTranscriptRef.current });
+      console.log("[Surah Journey] SpeechRecognition ended", { manual: manualStopRef.current, listening: listeningRef.current, transcript: finalTranscriptRef.current });
+      // Auto-restart if the user hasn't pressed Stop — engine often ends on brief silence
       if (listeningRef.current && !manualStopRef.current) {
         try {
           r.start();
+          console.log("[Surah Journey] Auto-restarted recognition");
           return;
         } catch (err) {
           console.error("[Surah Journey] SpeechRecognition restart failed:", err);
@@ -404,9 +421,11 @@ function VerseStep({
       }
       setRecording(false);
       stopAudioResources();
+      // Only score when the user explicitly stopped
+      if (!manualStopRef.current) return;
       if (!finalTranscriptRef.current) {
         setDiff(null);
-        if (manualStopRef.current) setPermError(t("mem.noSpeech"));
+        setPermError(t("mem.noSpeech"));
         return;
       }
       const final = diffRecitation(expected, finalTranscriptRef.current, true);
