@@ -335,8 +335,13 @@ function VerseStep({
     manualStopRef.current = false;
     listeningRef.current = true;
     try {
-      micStreamRef.current = await permissionPromise;
+      const stream = await permissionPromise;
       await ensureAudioContextReady();
+      // IMPORTANT: release the stream immediately. SpeechRecognition opens its
+      // own internal audio track — holding this one in parallel silences the
+      // recognizer on Chrome/desktop (it gets an empty audio source).
+      stream.getTracks().forEach((track) => track.stop());
+      micStreamRef.current = null;
     } catch (err: any) {
       setRequestingPerm(false);
       const name = err?.name || "";
