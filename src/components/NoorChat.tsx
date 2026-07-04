@@ -7,10 +7,10 @@ import { cn } from "@/lib/utils";
 const transport = new DefaultChatTransport({ api: "/api/chat" });
 
 const SUGGESTIONS = [
-  "Quel est le sens de Sourate Al-Fatiha ?",
-  "Que signifie le mot 'rahmān' ?",
-  "Donne-moi une réflexion sur Sourate Al-'Asr",
-  "Pourquoi la sourate Al-Ikhlas est-elle si importante ?",
+  "Que dit l'islam sur la sincérité ?",
+  "Explique-moi le tawakkul avec Coran et hadith",
+  "Quel est le jugement général de la prière à l'heure ?",
+  "Donne-moi une réflexion de savants sur Sourate Al-'Asr",
 ];
 
 function partsToText(parts: UIMessage["parts"]): string {
@@ -96,7 +96,7 @@ export function NoorChat() {
               </div>
               <div>
                 <div className="font-display font-bold leading-tight">Noor</div>
-                <div className="text-xs opacity-80">Compagnon Qur'an &amp; tafsir</div>
+                <div className="text-xs opacity-80">Coran, tafsir, hadith &amp; savants</div>
               </div>
             </div>
             <button
@@ -115,7 +115,7 @@ export function NoorChat() {
                 <div className="text-center pt-2">
                   <Sparkles className="w-6 h-6 text-gold mx-auto" />
                   <p className="mt-2 text-sm text-muted-foreground max-w-xs mx-auto">
-                    Pose-moi une question sur une sourate, un mot arabe ou une réflexion. Je ne fais pas de fatwa.
+                    Pose-moi une question sur le deen. Je réponds avec le Coran, le tafsir, les hadiths fiables et les paroles de savants.
                   </p>
                 </div>
                 <div className="grid gap-2">
@@ -202,7 +202,7 @@ export function NoorChat() {
               </button>
             </div>
             <p className="text-[10px] text-muted-foreground mt-2 text-center">
-              Noor cite la sourate et l'ayah. Pour les rulings, consulte un savant.
+              Noor cite ses références. Pour une fatwa personnelle, consulte un savant qualifié.
             </p>
           </form>
         </aside>
