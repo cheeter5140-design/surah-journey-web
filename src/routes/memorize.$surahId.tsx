@@ -272,6 +272,14 @@ function VerseStep({
 
   useEffect(() => { setRevealed(showText); setDiff(null); setTranscript(""); }, [ayahIndex, showText]);
 
+  // Tarteel-style auto-advance: once the verse is fully recited and recognition
+  // has ended, submit automatically after a short beat so the flow keeps going.
+  useEffect(() => {
+    if (!diff?.complete || recording) return;
+    const timer = setTimeout(() => onDone(diff.score), 700);
+    return () => clearTimeout(timer);
+  }, [diff, recording, onDone]);
+
   // Auto-play in écoute
   useEffect(() => {
     if (!autoPlay) return;
