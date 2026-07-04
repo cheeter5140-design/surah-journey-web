@@ -499,11 +499,12 @@ function VerseStep({
               <span
                 key={i}
                 className={cn(
-                  "transition-colors duration-200 mx-1",
+                  "transition-colors duration-200 mx-1 rounded-md px-1",
                   w.status === "correct" && "text-emerald-300",
                   w.status === "wrong" && "text-rose-400",
-                  w.status === "missed" && "text-rose-400/80 line-through decoration-rose-400/40",
-                  w.status === "pending" && "text-gold/90"
+                  w.status === "missed" && "text-rose-400/80 underline decoration-rose-400/60 decoration-wavy",
+                  w.status === "pending" && "text-white/50",
+                  w.status === "next" && "text-gold bg-gold/15 ring-1 ring-gold/40 animate-pulse"
                 )}
               >
                 {w.expected}
