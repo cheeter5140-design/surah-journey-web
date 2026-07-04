@@ -68,7 +68,7 @@ export function NoorChat() {
       <div
         className={cn(
           "fixed inset-0 z-[60] pointer-events-none transition-opacity",
-          open ? "opacity-100" : "opacity-0"
+          open ? "opacity-100" : "opacity-0",
         )}
       >
         {/* Backdrop */}
@@ -76,7 +76,7 @@ export function NoorChat() {
           onClick={() => setOpen(false)}
           className={cn(
             "absolute inset-0 bg-foreground/30 backdrop-blur-sm transition-opacity",
-            open ? "pointer-events-auto opacity-100" : "opacity-0"
+            open ? "pointer-events-auto opacity-100" : "opacity-0",
           )}
         />
         {/* Sheet */}
@@ -85,7 +85,7 @@ export function NoorChat() {
           aria-label="Noor"
           className={cn(
             "absolute right-0 top-0 h-full w-full sm:max-w-md bg-background border-l border-border shadow-2xl flex flex-col transition-transform duration-300",
-            open ? "translate-x-0 pointer-events-auto" : "translate-x-full"
+            open ? "translate-x-0 pointer-events-auto" : "translate-x-full",
           )}
         >
           {/* Header */}
@@ -115,7 +115,8 @@ export function NoorChat() {
                 <div className="text-center pt-2">
                   <Sparkles className="w-6 h-6 text-gold mx-auto" />
                   <p className="mt-2 text-sm text-muted-foreground max-w-xs mx-auto">
-                    Pose-moi une question sur le deen. Je réponds avec le Coran, le tafsir, les hadiths fiables et les paroles de savants.
+                    Pose-moi une question sur le deen. Je réponds avec le Coran, le tafsir,
+                    les hadiths fiables et les paroles de savants.
                   </p>
                 </div>
                 <div className="grid gap-2">
@@ -138,14 +139,17 @@ export function NoorChat() {
               return (
                 <div
                   key={m.id}
-                  className={cn("flex animate-fade-in-up", isUser ? "justify-end" : "justify-start")}
+                  className={cn(
+                    "flex animate-fade-in-up",
+                    isUser ? "justify-end" : "justify-start",
+                  )}
                 >
                   <div
                     className={cn(
                       "max-w-[85%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap leading-relaxed",
                       isUser
                         ? "bg-primary text-primary-foreground rounded-br-md"
-                        : "bg-secondary text-foreground rounded-bl-md"
+                        : "bg-secondary text-foreground rounded-bl-md",
                     )}
                   >
                     {text || (busy ? <span className="opacity-60">…</span> : null)}
