@@ -389,7 +389,16 @@ function VerseStep({
       }
       const combined = `${finalTranscriptRef.current} ${interim}`.trim();
       setTranscript(combined);
-      if (combined) setDiff(diffRecitation(expected, combined, false));
+      if (combined) {
+        const live = diffRecitation(expected, combined, false);
+        setDiff(live);
+        // Tarteel-style: verse is complete → auto-finalize & advance
+        if (live.complete && !manualStopRef.current) {
+          manualStopRef.current = true;
+          listeningRef.current = false;
+          try { recogRef.current?.stop(); } catch {/* ignore */}
+        }
+      }
     };
     r.onerror = (e: any) => {
       console.error("[Surah Journey] SpeechRecognition error:", e.error, e.message || "", e);
