@@ -115,8 +115,8 @@ export function NoorChat() {
                 <div className="text-center pt-2">
                   <Sparkles className="w-6 h-6 text-gold mx-auto" />
                   <p className="mt-2 text-sm text-muted-foreground max-w-xs mx-auto">
-                    Pose-moi une question sur le deen. Je réponds avec le Coran, le tafsir,
-                    les hadiths fiables et les paroles de savants.
+                    Pose-moi une question sur le deen. Je réponds avec le Coran, le tafsir, les
+                    hadiths fiables et les paroles de savants.
                   </p>
                 </div>
                 <div className="grid gap-2">
