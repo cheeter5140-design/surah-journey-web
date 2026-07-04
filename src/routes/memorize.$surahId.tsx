@@ -272,6 +272,14 @@ function VerseStep({
 
   useEffect(() => { setRevealed(showText); setDiff(null); setTranscript(""); }, [ayahIndex, showText]);
 
+  // Tarteel-style auto-advance: once the verse is fully recited and recognition
+  // has ended, submit automatically after a short beat so the flow keeps going.
+  useEffect(() => {
+    if (!diff?.complete || recording) return;
+    const timer = setTimeout(() => onDone(diff.score), 700);
+    return () => clearTimeout(timer);
+  }, [diff, recording, onDone]);
+
   // Auto-play in écoute
   useEffect(() => {
     if (!autoPlay) return;
@@ -389,7 +397,16 @@ function VerseStep({
       }
       const combined = `${finalTranscriptRef.current} ${interim}`.trim();
       setTranscript(combined);
-      if (combined) setDiff(diffRecitation(expected, combined, false));
+      if (combined) {
+        const live = diffRecitation(expected, combined, false);
+        setDiff(live);
+        // Tarteel-style: verse is complete → auto-finalize & advance
+        if (live.complete && !manualStopRef.current) {
+          manualStopRef.current = true;
+          listeningRef.current = false;
+          try { recogRef.current?.stop(); } catch {/* ignore */}
+        }
+      }
     };
     r.onerror = (e: any) => {
       console.error("[Surah Journey] SpeechRecognition error:", e.error, e.message || "", e);
@@ -490,11 +507,12 @@ function VerseStep({
               <span
                 key={i}
                 className={cn(
-                  "transition-colors duration-200 mx-1",
+                  "transition-colors duration-200 mx-1 rounded-md px-1",
                   w.status === "correct" && "text-emerald-300",
                   w.status === "wrong" && "text-rose-400",
-                  w.status === "missed" && "text-rose-400/80 line-through decoration-rose-400/40",
-                  w.status === "pending" && "text-gold/90"
+                  w.status === "missed" && "text-rose-400/80 underline decoration-rose-400/60 decoration-wavy",
+                  w.status === "pending" && "text-white/50",
+                  w.status === "next" && "text-gold bg-gold/15 ring-1 ring-gold/40 animate-pulse"
                 )}
               >
                 {w.expected}

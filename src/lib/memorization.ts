@@ -21,59 +21,81 @@ export function tokenize(text: string): string[] {
   return normalizeArabic(text).split(" ").filter(Boolean);
 }
 
-export type WordStatus = "correct" | "wrong" | "missed" | "pending";
+export type WordStatus = "correct" | "wrong" | "missed" | "pending" | "next";
 
 export interface DiffResult {
   words: { expected: string; status: WordStatus }[];
   score: number; // 0..100
   correctCount: number;
   totalCount: number;
+  cursor: number; // index of next expected word
+  complete: boolean; // true when all expected words matched in order
 }
 
-// Longest Common Subsequence alignment: any expected word found (in order)
-// in the spoken transcript is "correct", others are "wrong".
+// Tolerant token comparison for normalized Arabic (handles minor edge variations).
+function tokenSimilar(a: string, b: string): boolean {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  if (a.length >= 3 && b.length >= 3 && (a.startsWith(b) || b.startsWith(a) || a.endsWith(b) || b.endsWith(a))) return true;
+  const [s, l] = a.length <= b.length ? [a, b] : [b, a];
+  if (l.length - s.length > 1) return false;
+  let i = 0, j = 0, edits = 0;
+  while (i < s.length && j < l.length) {
+    if (s[i] === l[j]) { i++; j++; continue; }
+    edits++;
+    if (edits > 1) return false;
+    if (s.length === l.length) { i++; j++; } else { j++; }
+  }
+  if (j < l.length) edits += l.length - j;
+  return edits <= 1;
+}
+
+/**
+ * Sequential (Tarteel-style) alignment: walks the expected verse left-to-right.
+ * For every spoken word, we try to match the current cursor, allowing a small
+ * skip window in case the user swallowed / mispronounced a word. Skipped words
+ * become "missed"; the cursor advances to the next unmatched word. While the
+ * user is still speaking (`isFinal=false`), the next expected word is flagged
+ * as "next" so the UI can highlight the upcoming word.
+ */
 export function diffRecitation(expected: string, spoken: string, isFinal = true): DiffResult {
   const exp = tokenize(expected);
   const spo = tokenize(spoken);
   const n = exp.length;
-  const m = spo.length;
+  const statuses: WordStatus[] = new Array(n).fill("pending");
+  let cursor = 0;
 
-  // LCS dp
-  const dp: number[][] = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
-  for (let i = 1; i <= n; i++) {
-    for (let j = 1; j <= m; j++) {
-      dp[i][j] = exp[i - 1] === spo[j - 1] ? dp[i - 1][j - 1] + 1 : Math.max(dp[i - 1][j], dp[i][j - 1]);
+  const SKIP_WINDOW = 3;
+
+  for (const word of spo) {
+    if (cursor >= n) break;
+    let matchedAt = -1;
+    for (let k = 0; k < SKIP_WINDOW && cursor + k < n; k++) {
+      if (tokenSimilar(word, exp[cursor + k])) { matchedAt = cursor + k; break; }
     }
-  }
-  // Walk back to mark matched expected words
-  const matched = new Array(n).fill(false);
-  let i = n, j = m;
-  while (i > 0 && j > 0) {
-    if (exp[i - 1] === spo[j - 1]) {
-      matched[i - 1] = true;
-      i--; j--;
-    } else if (dp[i - 1][j] >= dp[i][j - 1]) {
-      i--;
-    } else {
-      j--;
+    if (matchedAt >= 0) {
+      for (let s = cursor; s < matchedAt; s++) statuses[s] = "missed";
+      statuses[matchedAt] = "correct";
+      cursor = matchedAt + 1;
     }
   }
 
-  // For interim (non-final) results, words past the last matched should stay "pending"
-  let lastMatchedIdx = -1;
-  for (let k = n - 1; k >= 0; k--) {
-    if (matched[k]) { lastMatchedIdx = k; break; }
+  if (isFinal) {
+    for (let i = cursor; i < n; i++) statuses[i] = "missed";
+  } else if (cursor < n) {
+    statuses[cursor] = "next";
   }
-  const cutoff = isFinal ? n : Math.min(n, lastMatchedIdx + 2);
 
-  const words = exp.map((w, idx) => {
-    if (matched[idx]) return { expected: w, status: "correct" as WordStatus };
-    if (idx >= cutoff) return { expected: w, status: "pending" as WordStatus };
-    return { expected: w, status: (isFinal ? "missed" : "wrong") as WordStatus };
-  });
-  const correctCount = matched.filter(Boolean).length;
+  const correctCount = statuses.filter((s) => s === "correct").length;
   const score = n === 0 ? 0 : Math.round((correctCount / n) * 100);
-  return { words, score, correctCount, totalCount: n };
+  return {
+    words: exp.map((w, i) => ({ expected: w, status: statuses[i] })),
+    score,
+    correctCount,
+    totalCount: n,
+    cursor,
+    complete: cursor >= n,
+  };
 }
 
 export function feedbackFromScore(score: number): { label: string; tone: "great" | "good" | "ok" | "retry" } {
